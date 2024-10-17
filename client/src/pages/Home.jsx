@@ -7,7 +7,7 @@ const Home = () => {
     {
       id: 1,
       user: 'María García',
-      content: '¡Increíble día en la playa!',
+      content: '¡Increíble la final del mundial de tennis!',
       likes: 24,
       comments: 5,
       time: '1h'
@@ -15,7 +15,7 @@ const Home = () => {
     {
       id: 2,
       user: 'Carlos López',
-      content: 'Nuevo proyecto en camino.',
+      content: 'Quien se apunta a un partido de futbol cerca de San Jose?',
       likes: 15,
       comments: 3,
       time: '2h'

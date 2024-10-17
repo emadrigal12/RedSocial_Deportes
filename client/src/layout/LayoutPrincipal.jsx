@@ -5,21 +5,26 @@ import { Outlet } from 'react-router-dom';
 
 const LayoutPrincipal = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
       <Navbar />
-      <div className="pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 py-6">
-            <Sidebar />
-            <main className="md:col-span-2">
+      <div className="pt-20 pb-6 sm:pb-8">
+        <div className="max-w-full px-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8">
+            <div className="md:col-span-3">
+              <Sidebar />
+            </div>
+            <main className="md:col-span-6">
               <Outlet />
             </main>
-            <PanelNotificacion />
+            <div className="md:col-span-3">
+              <PanelNotificacion />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default LayoutPrincipal;

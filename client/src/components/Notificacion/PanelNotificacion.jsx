@@ -7,16 +7,21 @@ export const PanelNotificacion = () => {
   ];
 
   return (
-    <div className="md:col-span-1">
-      <Card>
-        <CardContent className="p-4">
-          <h3 className="font-semibold mb-4">Notificaciones</h3>
-          {notifications.map(notification => (
-            <div key={notification.id} className="py-2 border-b last:border-0">
-              <p className="text-sm">{notification.text}</p>
-              <span className="text-xs text-gray-500">{notification.time}</span>
-            </div>
-          ))}
+    <div className="hidden lg:block md:col-span-1">
+      <Card className="sticky top-24">
+        <CardContent className="p-6">
+          <h3 className="font-semibold text-lg mb-4">Notificaciones</h3>
+          <div className="space-y-4">
+            {notifications.map(notification => (
+              <div 
+                key={notification.id} 
+                className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <p className="text-sm font-medium">{notification.text}</p>
+                <span className="text-xs text-gray-500 mt-1 block">{notification.time}</span>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

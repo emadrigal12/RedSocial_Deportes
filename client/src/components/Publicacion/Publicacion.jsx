@@ -2,38 +2,54 @@ import PropTypes from 'prop-types';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { MessageCircle, MoreVertical, Share2, ThumbsUp } from 'lucide-react';
 
 export const Publicacion = ({ post }) => {
-  return (
-    <Card className="mb-6">
-      <CardContent className="p-4">
-        <div className="flex items-start space-x-4">
-          <Avatar>
-            <AvatarImage src="/api/placeholder/32/32" />
-            <AvatarFallback>MG</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{post.user}</h3>
-              <span className="text-sm text-gray-500">{post.time}</span>
-            </div>
-            <p className="mt-2">{post.content}</p>
-            <div className="mt-4 flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
-                Me gusta ({post.likes})
-              </Button>
-              <Button variant="ghost" size="sm">
-                Comentar ({post.comments})
-              </Button>
-              <Button variant="outline" size="sm">
-                Compartir
-              </Button>
+    return (
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-4">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src="/api/placeholder/32/32" />
+              <AvatarFallback>MG</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg">{post.user}</h3>
+                  <span className="text-sm text-gray-500">{post.time}</span>
+                </div>
+                <Button  size="icon">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </div>
+              <p className="mt-4 text-base leading-relaxed">{post.content}</p>
+              <div className="mt-6 flex items-center space-x-6 border-t pt-4">
+                <Button 
+                  className="flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                >
+                  <ThumbsUp className="h-5 w-5" />
+                  <span>Me gusta ({post.likes})</span>
+                </Button>
+                <Button 
+                  className="flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                >
+                  <MessageCircle className="h-5 w-5" />
+                  <span>Comentar ({post.comments})</span>
+                </Button>
+                <Button 
+                  
+                  className="flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                >
+                  <Share2 className="h-5 w-5" />
+                  <span>Compartir</span>
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
 };
 
 Publicacion.propTypes = {
