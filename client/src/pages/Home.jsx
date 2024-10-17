@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import CreatePost from '../components/posts/CreatePost';
-import PostCard from '../components/posts/PostCard';
+import {CrearPublicacion} from '../components/Publicacion/CrearPublicacion';
+import {Publicacion}  from '../components/Publicacion/Publicacion';
 
 const Home = () => {
   const [posts] = useState([
@@ -24,10 +24,10 @@ const Home = () => {
 
   return (
     <>
-      <CreatePost />
-      {posts.map(post => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      <CrearPublicacion />
+        {posts.map(post => (
+          <Publicacion key={post.id} post={post} />
+        ))}
     </>
   );
 };

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-export const Publicacion = ({ user, time, content, likes, comments }) => {
+export const Publicacion = ({ post }) => {
   return (
     <Card className="mb-6">
       <CardContent className="p-4">
@@ -14,18 +14,18 @@ export const Publicacion = ({ user, time, content, likes, comments }) => {
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{user}</h3>
-              <span className="text-sm text-gray-500">{time}</span>
+              <h3 className="font-semibold">{post.user}</h3>
+              <span className="text-sm text-gray-500">{post.time}</span>
             </div>
-            <p className="mt-2">{content}</p>
+            <p className="mt-2">{post.content}</p>
             <div className="mt-4 flex items-center space-x-4">
               <Button variant="ghost" size="sm">
-                Me gusta ({likes})
+                Me gusta ({post.likes})
               </Button>
               <Button variant="ghost" size="sm">
-                Comentar ({comments})
+                Comentar ({post.comments})
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="outline" size="sm">
                 Compartir
               </Button>
             </div>
@@ -37,9 +37,11 @@ export const Publicacion = ({ user, time, content, likes, comments }) => {
 };
 
 Publicacion.propTypes = {
-    user : PropTypes.string.isRequired,
-    time : PropTypes.string.isRequired,
-    content : PropTypes.string.isRequired,
-    likes : PropTypes.number.isRequired,
-    comments : PropTypes.string.isRequired
-}
+  post: PropTypes.shape({
+    user: PropTypes.string.isRequired,      
+    time: PropTypes.string.isRequired,      
+    content: PropTypes.string.isRequired,   
+    likes: PropTypes.number.isRequired,     
+    comments: PropTypes.number.isRequired 
+  }).isRequired
+};

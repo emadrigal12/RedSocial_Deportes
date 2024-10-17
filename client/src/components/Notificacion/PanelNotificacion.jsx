@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 
-export const NotificationPanel = () => {
+export const PanelNotificacion = () => {
   const notifications = [
     { id: 1, text: 'Juan te envió una solicitud de amistad', time: '5m' },
     { id: 2, text: 'María comentó tu publicación', time: '10m' },

@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-export const CreatePost = () => {
+export const CrearPublicacion = () => {
   return (
     <Card className="mb-6">
       <CardContent className="p-4">

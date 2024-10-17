@@ -1,6 +1,6 @@
-import Navbar from '../components/navigation/Navbar';
-import Sidebar from '../components/navigation/Sidebar';
-import NotificationPanel from '../components/notifications/NotificationPanel';
+import {Navbar} from '../components/Navegacion/Navbar';
+import {Sidebar} from '../components/Navegacion/SideBar';
+import {PanelNotificacion}  from '../components/Notificacion/PanelNotificacion';
 import { Outlet } from 'react-router-dom';
 
 const LayoutPrincipal = () => {
@@ -14,7 +14,7 @@ const LayoutPrincipal = () => {
             <main className="md:col-span-2">
               <Outlet />
             </main>
-            <NotificationPanel />
+            <PanelNotificacion />
           </div>
         </div>
       </div>
