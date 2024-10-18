@@ -11,7 +11,7 @@ export const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between h-16 lg:h-20 items-center">
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl lg:text-3xl font-bold text-blue-600">Red Social</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-blue-600 mr-5">Sportify</h1>
             <div className="hidden md:flex items-center space-x-2">
               <Button 
                 className="flex items-center space-x-2 px-4 hover:bg-blue-50 hover:text-blue-600"
