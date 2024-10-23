@@ -19,27 +19,27 @@ export const Publicacion = ({ post }) => {
                   <h3 className="font-semibold text-lg">{post.user}</h3>
                   <span className="text-sm text-gray-500">{post.time}</span>
                 </div>
-                <Button className="hover:bg-orange-50 hover:bg-orange-600 bg-orange-500" size="icon">
+                <Button className="bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300" size="icon">
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </div>
               <p className="mt-4 text-base leading-relaxed">{post.content}</p>
               <div className="mt-6 flex items-center space-x-6 border-t pt-4">
                 <Button 
-                  className="flex items-center space-x-2 hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 transition-colors"
+                  className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
                 >
                   <ThumbsUp className="h-5 w-5" />
                   <span>Me gusta ({post.likes})</span>
                 </Button>
                 <Button 
-                  className="flex items-center space-x-2 hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 transition-colors"
+                  className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
                 >
                   <MessageCircle className="h-5 w-5" />
                   <span>Comentar ({post.comments})</span>
                 </Button>
                 <Button 
                   
-                  className="flex items-center space-x-2 hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 transition-colors"
+                  className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
                 >
                   <Share2 className="h-5 w-5" />
                   <span>Compartir</span>

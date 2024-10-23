@@ -3,6 +3,38 @@
 @tailwind utilities;
 
 
+@layer utilities {
+  /* Scrollbar personalizado para mejor experiencia visual */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 3px;
+  }
+}
+
+
+@layer components {
+  .news-card-hover {
+      @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .news-image-hover {
+      @apply transition-transform duration-300 ease-in-out;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
