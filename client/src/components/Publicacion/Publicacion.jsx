@@ -19,27 +19,27 @@ export const Publicacion = ({ post }) => {
                   <h3 className="font-semibold text-lg">{post.user}</h3>
                   <span className="text-sm text-gray-500">{post.time}</span>
                 </div>
-                <Button  size="icon">
+                <Button className="hover:bg-orange-50 hover:bg-orange-600 bg-orange-500" size="icon">
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </div>
               <p className="mt-4 text-base leading-relaxed">{post.content}</p>
               <div className="mt-6 flex items-center space-x-6 border-t pt-4">
                 <Button 
-                  className="flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  className="flex items-center space-x-2 hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 transition-colors"
                 >
                   <ThumbsUp className="h-5 w-5" />
                   <span>Me gusta ({post.likes})</span>
                 </Button>
                 <Button 
-                  className="flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  className="flex items-center space-x-2 hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 transition-colors"
                 >
                   <MessageCircle className="h-5 w-5" />
                   <span>Comentar ({post.comments})</span>
                 </Button>
                 <Button 
                   
-                  className="flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  className="flex items-center space-x-2 hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 transition-colors"
                 >
                   <Share2 className="h-5 w-5" />
                   <span>Compartir</span>

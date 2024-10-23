@@ -19,7 +19,7 @@ export const CrearPublicacion = () => {
             />
             <div className="flex justify-end mt-4">
               <Button 
-                className="hover:bg-blue-700 text-white px-6 transition-colors"
+                className="hover:bg-orange-50 hover:bg-orange-600 bg-orange-500 text-white px-6 transition-colors"
               >
                 Publicar
               </Button>
