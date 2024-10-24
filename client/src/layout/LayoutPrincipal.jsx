@@ -1,7 +1,7 @@
+import { ListaMensajes } from '../components/Mensajes/ListaMensajes';
 import {Navbar} from '../components/Navegacion/Navbar';
 import {Sidebar} from '../components/Navegacion/SideBar';
 import { Noticias } from '../components/Noticias/Noticias';
-import {PanelNotificacion}  from '../components/Notificacion/PanelNotificacion';
 import { Outlet } from 'react-router-dom';
 
 const LayoutPrincipal = () => {
@@ -32,7 +32,7 @@ const LayoutPrincipal = () => {
 
             <div className="col-span-12 lg:col-span-3 xl:col-span-2">
               <div className="lg:sticky lg:top-20">
-                <PanelNotificacion />
+                <ListaMensajes /> 
               </div>
             </div>
           </div>
