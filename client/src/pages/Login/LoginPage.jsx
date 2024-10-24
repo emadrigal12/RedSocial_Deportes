@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, EyeOffIcon, Loader2 } from 'lucide-react';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
