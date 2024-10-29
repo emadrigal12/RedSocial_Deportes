@@ -86,12 +86,6 @@ const RecuperarContrasena = () => {
         <Card className="bg-white shadow-lg">
           <CardHeader className="space-y-1 pb-6">
             <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                className="rounded-full p-0 w-8 h-8 hover:bg-gray-100"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
               <CardTitle className="text-2xl font-bold">
                 Recuperar contraseña
               </CardTitle>
