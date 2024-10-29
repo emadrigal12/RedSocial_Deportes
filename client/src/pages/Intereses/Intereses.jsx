@@ -21,6 +21,7 @@ const SPORTS = [
 const Intereses = () => {
   const [selectedSports, setSelectedSports] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false)
 
   const handleSportClick = (sportId) => {
     if (selectedSports.includes(sportId)) {
@@ -28,6 +29,16 @@ const Intereses = () => {
     } else {
       setSelectedSports([...selectedSports, sportId]);
     }
+  };
+
+ 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => {
+      window.location.href = '/home';
+      setLoading(false);
+    }, 1000);
   };
 
   const filteredSports = SPORTS.filter(sport =>
@@ -89,7 +100,8 @@ const Intereses = () => {
               </p>
               <Button
                 className="w-full sm:w-auto px-8 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300"
-                disabled={!canContinue}
+                disabled={!canContinue || loading}
+                onClick = { handleSubmit }
               >
                 Continuar
               </Button>

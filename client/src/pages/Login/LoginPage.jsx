@@ -12,7 +12,9 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => setLoading(false), 1000);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   };
 
   return (
@@ -109,7 +111,7 @@ const LoginPage = () => {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 ¿No tienes una cuenta?{' '}
-                <a href="#" className="text-orange-500 hover:text-orange-600 font-medium">
+                <a href="/registro" className="text-orange-500 hover:text-orange-600 font-medium">
                   Regístrate
                 </a>
               </p>
