@@ -13,6 +13,7 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
+      window.location.href = '/intereses';
       setLoading(false);
     }, 1000);
   };
@@ -88,7 +89,7 @@ const LoginPage = () => {
                     Recordarme
                   </label>
                 </div>
-                <a href="#" className="text-sm text-orange-500 hover:text-orange-600">
+                <a href="/recuperar-contrasena" className="text-sm text-orange-500 hover:text-orange-600">
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
