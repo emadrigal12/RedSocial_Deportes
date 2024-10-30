@@ -1,4 +1,6 @@
 import admin from '../config/firebase-admin';
+const jwt = require("jsonwebtoken");
+const jwtConfig = require("../config/jwt");
 
 export const verifyToken = async (req, res, next) => {
   try {

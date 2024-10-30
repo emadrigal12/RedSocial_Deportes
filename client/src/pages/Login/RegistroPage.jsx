@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,14 +10,35 @@ import { FcGoogle } from 'react-icons/fc';
 const RegistroPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    nombre: user?.displayName || '',
+    telefono: '',
+    apellidos: '',
+    
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      window.location.href = '/intereses';
-      setLoading(false);
-    }, 1000);
+    
+    try {
+      const token = localStorage.getItem('firebaseToken');
+      const response = await fetch('http://localhost:3000/api/auth/complete-registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        navigate('/home'); 
+      }
+    } catch (error) {
+      console.error('Error completing registration:', error);
+    }
   };
 
   return (
@@ -49,6 +72,8 @@ const RegistroPage = () => {
                   <Input
                     id="firstName"
                     type="text"
+                    value={formData.nombre}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                     placeholder="Juan"
                     required
                     className="w-full"
@@ -61,6 +86,8 @@ const RegistroPage = () => {
                   <Input
                     id="lastName"
                     type="text"
+                    value={formData.apellidos}
+                    onChange={(e) => setFormData(prev => ({ ...prev, apellidos: e.target.value }))}
                     placeholder="Pérez"
                     required
                     className="w-full"
@@ -73,6 +100,8 @@ const RegistroPage = () => {
                   <Input
                     id="username"
                     type="text"
+                    value={formData.usuario}
+                    onChange={(e) => setFormData(prev => ({ ...prev, usuario: e.target.value }))}
                     placeholder="juanperez123"
                     required
                     className="w-full"
@@ -85,7 +114,8 @@ const RegistroPage = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+34 600 000 000"
+                    value={formData.telefono}
+                    onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
                     required
                     className="w-full"
                   />

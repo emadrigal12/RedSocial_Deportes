@@ -6,5 +6,7 @@ const router = express.Router();
 
 router.post('/google', authController.googleAuth);
 router.get('/profile', verifyToken, authController.getProfile);
+router.get('/check-user', verifyToken, authController.checkUser);
+router.post('/complete-registro', verifyToken, authController.completeRegistro);
 
 export default router;

@@ -1,64 +1,74 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  GoogleAuthProvider, 
-  signInWithPopup,
-  onAuthStateChanged,
-  signOut
-} from 'firebase/auth';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase/config';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [needsRegistration, setNeedsRegistration] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        user.getIdToken().then(token => {
-          localStorage.setItem('firebaseToken', token);
-        });
+        const token = await user.getIdToken();
+        localStorage.setItem('firebaseToken', token);
+
+        try {
+          const response = await fetch('http://localhost:3000/api/auth/check-user', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const data = await response.json();
+          if (!data.exists) {
+            setNeedsRegistration(true);
+            if (location.pathname !== '/registro') {
+              navigate('/registro');
+            }
+          } else {
+            setUser({ ...user, ...data.userData });
+            if (location.pathname !== '/home') {
+              navigate('/home');
+            }
+          }
+        } catch (error) {
+          console.error('Error checking user:', error);
+        }
+      } else {
+        setUser(null);
+        localStorage.removeItem('firebaseToken');
+        if (location.pathname !== '/' && location.pathname !== '/registro') {
+          navigate('/');
+        }
       }
-      setUser(user);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [navigate, location]);
 
   const loginWithGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const token = await result.user.getIdToken();
-      const response = await fetch('http://localhost:3000/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error al iniciar sesión con Google:', error);
-      throw error;
-    }
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    return result.user;
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem('firebaseToken');
-    return signOut(auth);
+    await signOut(auth);
+    navigate('/');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loginWithGoogle, logout, loading }}>
+    <AuthContext.Provider value={{ user, loginWithGoogle, logout, loading, needsRegistration, setNeedsRegistration }}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
