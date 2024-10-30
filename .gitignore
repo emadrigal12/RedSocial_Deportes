@@ -137,3 +137,5 @@ dist/
 serviceAccountKey.json
 .DS_Store
 *.log
+
+server/src/config/firebase-service-account.json

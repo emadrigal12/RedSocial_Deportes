@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
+import { BotonGoogle } from '../../components/Login/BotonGoogle';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -100,14 +101,7 @@ const LoginPage = () => {
               >
                 {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
-              <Button 
-                type="button"
-                className="w-full bg-white border border-gray-300 hover:bg-gray-100 text-black flex items-center justify-center space-x-2"
-                disabled={loading}
-              >
-                <span>{loading ? "Iniciando sesión..." : "Iniciar Sesión con Google"}</span>
-                <FcGoogle className="h-5 w-5" />
-              </Button>
+              <BotonGoogle />
             </form>
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
