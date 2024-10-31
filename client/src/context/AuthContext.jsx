@@ -14,6 +14,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log(user, 'User');
+      
       if (user) {
         const token = await user.getIdToken();
         localStorage.setItem('firebaseToken', token);
@@ -25,7 +27,9 @@ export const AuthProvider = ({ children }) => {
             }
           });
           const data = await response.json();
-          if (!data.exists) {
+          console.log(data,'Data');
+          
+          if (!data.exists  ) {
             setNeedsRegistration(true);
             if (location.pathname !== '/registro') {
               navigate('/registro');

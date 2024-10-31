@@ -39,7 +39,9 @@ export const checkUser = async (req, res) => {
         .collection('Usuarios')
         .doc(uid)
         .get();
-  
+      
+      console.log(userDoc.exists, 'UserDoc');
+      
       if (!userDoc.exists) {
         return res.json({ exists: false });
       }
@@ -60,7 +62,7 @@ export const checkUser = async (req, res) => {
       const userData = req.body;
   
       await admin.firestore()
-        .collection('usuarios')
+        .collection('Usuarios')
         .doc(uid)
         .set({
           ...userData,

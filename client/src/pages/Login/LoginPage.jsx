@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
-import { BotonGoogle } from '../../components/Login/BotonGoogle';
+import  BotonGoogle  from '../../components/Login/BotonGoogle';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);

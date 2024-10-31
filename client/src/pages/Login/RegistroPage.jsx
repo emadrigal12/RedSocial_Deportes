@@ -1,43 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { FcGoogle } from 'react-icons/fc';
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc';
 
 const RegistroPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, needsRegistration } = useAuth();
   const navigate = useNavigate();
+  console.log(user, 'User???');
+  
+  
   const [formData, setFormData] = useState({
-    nombre: user?.displayName || '',
+    nombre: user?.displayName?.split(' ')[0] || '',
+    apellidos: user?.displayName?.split(' ').slice(1).join(' ') || '',
+    usuario: '',
     telefono: '',
-    apellidos: '',
-    
+    fechaNacimiento: '',
+    email: user?.email || ''
   });
+
+
+  useEffect(() => {
+    // If user is already registered, redirect to home
+    if (user && !needsRegistration) {
+      navigate('/home');
+    }
+  }, [user, needsRegistration, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
     try {
       const token = localStorage.getItem('firebaseToken');
+      
       const response = await fetch('http://localhost:3000/api/auth/complete-registro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData
+        })
       });
 
       if (response.ok) {
-        navigate('/home'); 
+        // Registration successful
+        navigate('/home');
+      } else {
+        throw new Error('Registration failed');
       }
     } catch (error) {
       console.error('Error completing registration:', error);
+      // Handle error appropriately
+    } finally {
+      setLoading(false);
     }
   };
 
