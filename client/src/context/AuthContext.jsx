@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log(user, 'User');
       
       if (user) {
         const token = await user.getIdToken();
@@ -27,16 +26,18 @@ export const AuthProvider = ({ children }) => {
             }
           });
           const data = await response.json();
-          console.log(data,'Data');
           
           if (!data.exists  ) {
             setNeedsRegistration(true);
             if (location.pathname !== '/registro') {
+              setUser({ ...user, ...data.userData });
               navigate('/registro');
             }
           } else {
             setUser({ ...user, ...data.userData });
-            if (location.pathname !== '/home') {
+            if (needsRegistration) {
+              navigate('/intereses');
+            }else{
               navigate('/home');
             }
           }

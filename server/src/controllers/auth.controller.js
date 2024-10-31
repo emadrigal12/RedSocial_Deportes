@@ -4,7 +4,7 @@ export const googleAuth = async (req, res) => {
   try {
     const { token } = req.body;
     const decodedToken = await admin.auth().verifyIdToken(token);
-    console.log(token);
+    
     
     
     res.status(200).json({
@@ -56,24 +56,33 @@ export const checkUser = async (req, res) => {
     }
   };
   
-  export const completeRegistro = async (req, res) => {
-    try {
-      const { uid } = req.user;
-      const userData = req.body;
-  
-      await admin.firestore()
-        .collection('Usuarios')
-        .doc(uid)
-        .set({
-          ...userData,
-          email: req.user.email,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-  
-      res.status(200).json({ message: 'Registration completed successfully' });
-    } catch (error) {
-      console.error('Error completing registration:', error);
-      res.status(500).json({ message: 'Error completing registration' });
+
+export const completeRegistro = async (req, res) => {
+  try {
+    let uid = req.user?.uid;
+    const userData = req.body;
+
+    if (!uid) {
+      const newUser = await admin.auth().createUser({
+        email: userData.email,
+        password: userData.password
+      });
+      uid = newUser.uid;
     }
-  };
+
+    await admin.firestore()
+      .collection('Usuarios')
+      .doc(uid)
+      .set({
+        ...userData,
+        email: userData.email,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+    res.status(200).json({ message: 'Registration completed successfully' });
+  } catch (error) {
+    console.error('Error completing registration:', error);
+    res.status(500).json({ message: 'Error completing registration' });
+  }
+};
