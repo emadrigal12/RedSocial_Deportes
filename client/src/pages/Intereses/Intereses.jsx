@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const SPORTS = [
   { id: 1, name: 'Fútbol', icon: '⚽' },
@@ -22,23 +24,42 @@ const Intereses = () => {
   const [selectedSports, setSelectedSports] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false)
+  const { user, saveUserInterests } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSportClick = (sportId) => {
-    if (selectedSports.includes(sportId)) {
-      setSelectedSports(selectedSports.filter(id => id !== sportId));
+  const handleSportClick = (sportId, sportName) => {
+    if (selectedSports.includes(sportName)) {
+      setSelectedSports(selectedSports.filter(id => id !== sportName));
     } else {
-      setSelectedSports([...selectedSports, sportId]);
+      setSelectedSports([...selectedSports, sportName]);
     }
   };
 
  
-  const handleSubmit = async (e) => {
+  const handleSubmitFake = async (e) => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
       window.location.href = '/home';
       setLoading(false);
     }, 1000);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+
+    setLoading(true);
+
+    try {
+      await saveUserInterests(selectedSports);
+      
+      navigate('/home');
+    } catch (error) {
+      console.error('Error al completar el registro:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredSports = SPORTS.filter(sport =>
@@ -79,9 +100,9 @@ const Intereses = () => {
               {filteredSports.map((sport) => (
                 <button
                   key={sport.id}
-                  onClick={() => handleSportClick(sport.id)}
+                  onClick={() => handleSportClick(sport.id, sport.name)}
                   className={`aspect-square rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-all ${
-                    selectedSports.includes(sport.id)
+                    selectedSports.includes(sport.name)
                       ? 'bg-orange-100 border-2 border-orange-500'
                       : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent'
                   }`}

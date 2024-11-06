@@ -1,3 +1,4 @@
+// src/components/Login/BotonGoogle.js
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from 'react-icons/fc';
@@ -12,25 +13,14 @@ const BotonGoogle = () => {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const user = await loginWithGoogle();
+      const { user, isNewUser, needsInterests } = await loginWithGoogle();
       
-      if (user) {
-        const token = await user.getIdToken();
-        
-        
-        const response = await fetch('http://localhost:3000/api/auth/check-user', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        const data = await response.json();
-        
-        if (!data.exists) {
-          navigate('/registro');
-        } else {
-          navigate('/home');
-        }
+      if (isNewUser) {
+        navigate('/registro');
+      } else if (needsInterests) {
+        navigate('/intereses');
+      } else {
+        navigate('/home');
       }
     } catch (error) {
       console.error('Error during Google login:', error);

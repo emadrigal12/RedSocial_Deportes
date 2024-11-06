@@ -3,6 +3,8 @@ import { Bell, Home, Users, Menu, X, LogOut, User, Settings } from 'lucide-react
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,16 +15,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const Navbar = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
       await logout();
+      // Forzar la navegación al login
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+      
+      if (error.code === 'ERR_BLOCKED_BY_CLIENT') {
+        toast({
+          variant: "destructive",
+          title: "Error al cerrar sesión",
+          description: "Por favor, desactiva el bloqueador de anuncios y vuelve a intentarlo."
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Hubo un problema al cerrar la sesión. Por favor, intenta de nuevo."
+        });
+      }
     }
   };
+  
 
   return (
     <nav className="bg-gradient-to-r from-orange-400 to-orange-600 fixed w-full z-50 shadow-lg">

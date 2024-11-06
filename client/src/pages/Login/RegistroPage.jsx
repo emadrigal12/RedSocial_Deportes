@@ -1,25 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { FcGoogle } from 'react-icons/fc';
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const RegistroPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const { user, needsRegistration, logout } = useAuth();
   const navigate = useNavigate();
-  
-  
-  const [isGoogleAuth, setIsGoogleAuth] = useState(() => {
-    const storedAuthMethod = localStorage.getItem('authMethod');
-    return storedAuthMethod === 'google';
-  });
-  
+  const { user, completeRegistration, needsRegistration } = useAuth();
+
   const [formData, setFormData] = useState({
     nombre: user?.displayName?.split(' ')[0] || '',
     apellidos: user?.displayName?.split(' ').slice(1).join(' ') || '',
@@ -27,73 +20,88 @@ const RegistroPage = () => {
     telefono: '',
     fechaNacimiento: '',
     email: user?.email || '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
 
   useEffect(() => {
-    if (user) {
-      const isGoogle = user.providerData?.[0]?.providerId === 'google.com';
-      
-      console.log(user.providerData?.[0]?.providerId);
-      
-      setIsGoogleAuth(isGoogle);
-      localStorage.setItem('authMethod', isGoogle ? 'google' : 'email');
-      setInitialLoading(false);
-    } else {
-      setInitialLoading(false);
+    if (!user) {
+      navigate('/login');
+      return;
     }
-  }, [user]);
 
-  useEffect(() => {
-    if (user && !needsRegistration) {
+    if (!needsRegistration) {
       navigate('/home');
+      return;
     }
+
+    const isGoogleUser = user?.providerData?.[0]?.providerId === 'google.com';
+    
+    if (isGoogleUser) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email,
+        nombre: user.displayName?.split(' ')[0] || '',
+        apellidos: user.displayName?.split(' ').slice(1).join(' ') || '',
+      }));
+    }
+
+    setInitialLoading(false);
   }, [user, needsRegistration, navigate]);
+
+  const validateForm = () => {
+    if (!formData.usuario || !formData.fechaNacimiento) {
+      return false;
+    }
+
+    if (!isGoogleUser) {
+      if (formData.password !== formData.confirmPassword || formData.password.length < 6) {
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     
-    try {
-      const token = localStorage.getItem('firebaseToken');
-      
-      
-      
-      const response = await fetch('http://localhost:3000/api/auth/complete-registro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...formData
-        })
-      });
+    if (!validateForm()) {
+      // Aquí podrías mostrar un mensaje de error
+      return;
+    }
 
-      if (response.ok) {
-        navigate('/intereses');
-      } else {
-        throw new Error('Registration failed');
-      }
+    setLoading(true);
+
+    try {
+      // Prepara los datos para guardar
+      const userData = {
+        nombre: formData.nombre,
+        apellidos: formData.apellidos,
+        usuario: formData.usuario,
+        telefono: formData.telefono,
+        fechaNacimiento: formData.fechaNacimiento,
+        email: formData.email,
+      };
+
+      // Completa el registro del usuario
+      await completeRegistration(userData);
+
+      // Redirige a la página de intereses
+      navigate('/intereses');
     } catch (error) {
-      console.error('Error completing registration:', error);
+      console.error('Error al completar el registro:', error);
+      // Aquí podrías mostrar un mensaje de error al usuario
     } finally {
       setLoading(false);
     }
   };
 
-  const handleIniciarSesion = async () => {
-    try {
-      localStorage.removeItem('authMethod');
-      await logout();
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
-  };
-
-  
   if (initialLoading) {
-    return null; 
+    return <div>Cargando...</div>;
   }
+
+  const isGoogleUser = user?.providerData?.[0]?.providerId === 'google.com';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 animate-gradient-x">
@@ -103,70 +111,72 @@ const RegistroPage = () => {
             Sportify
           </h1>
           <p className="text-center text-sm text-gray-600 animate-fade-in">
-            Únete a nuestra comunidad deportiva
+            {isGoogleUser ? 'Completa tu perfil' : 'Únete a nuestra comunidad deportiva'}
           </p>
         </div>
 
         <Card className="bg-white shadow-lg">
           <CardHeader className="space-y-1 pb-6">
             <CardTitle className="text-2xl font-bold text-center">
-              Crear Cuenta
+              {isGoogleUser ? 'Completa tu registro' : 'Crear cuenta'}
             </CardTitle>
             <p className="text-sm text-center text-gray-500">
-              Completa tus datos para comenzar
+              {isGoogleUser 
+                ? 'Solo necesitamos algunos datos adicionales' 
+                : 'Completa tus datos para comenzar'}
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700" htmlFor="firstName">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="nombre">
                     Nombre
                   </label>
                   <Input
-                    id="firstName"
+                    id="nombre"
                     type="text"
                     value={formData.nombre}
                     onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-                    placeholder="Juan"
+                    disabled={isGoogleUser}
                     required
                     className="w-full"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700" htmlFor="lastName">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="apellidos">
                     Apellidos
                   </label>
                   <Input
-                    id="lastName"
+                    id="apellidos"
                     type="text"
                     value={formData.apellidos}
                     onChange={(e) => setFormData(prev => ({ ...prev, apellidos: e.target.value }))}
-                    placeholder="Pérez"
+                    disabled={isGoogleUser}
                     required
                     className="w-full"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700" htmlFor="username">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="usuario">
                     Nombre de usuario
                   </label>
                   <Input
-                    id="username"
+                    id="usuario"
                     type="text"
                     value={formData.usuario}
                     onChange={(e) => setFormData(prev => ({ ...prev, usuario: e.target.value }))}
-                    placeholder="juanperez123"
                     required
                     className="w-full"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700" htmlFor="phone">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="telefono">
                     Teléfono
                   </label>
                   <Input
-                    id="phone"
+                    id="telefono"
                     type="tel"
                     value={formData.telefono}
                     onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
@@ -174,6 +184,7 @@ const RegistroPage = () => {
                     className="w-full"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700" htmlFor="fechaNacimiento">
                     Fecha de nacimiento
@@ -181,8 +192,9 @@ const RegistroPage = () => {
                   <Input
                     id="fechaNacimiento"
                     type="date"
-                    required
+                    value={formData.fechaNacimiento}
                     onChange={(e) => setFormData(prev => ({ ...prev, fechaNacimiento: e.target.value }))}
+                    required
                     className="w-full"
                   />
                 </div>
@@ -193,15 +205,13 @@ const RegistroPage = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="juan@ejemplo.com"
-                    required
-                    value={user?.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    disabled={user?.email?.length > 0}
+                    value={formData.email}
+                    disabled
                     className="w-full"
                   />
                 </div>
-                {!isGoogleAuth && (
+
+                {!isGoogleUser && (
                   <>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700" htmlFor="password">
@@ -211,9 +221,9 @@ const RegistroPage = () => {
                         <Input
                           id="password"
                           type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          required
+                          value={formData.password}
                           onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                          required
                           className="w-full pr-10"
                         />
                         <button
@@ -233,16 +243,14 @@ const RegistroPage = () => {
                       <label className="text-sm font-medium text-gray-700" htmlFor="confirmPassword">
                         Confirmar contraseña
                       </label>
-                      <div className="relative">
-                        <Input
-                          id="confirmPassword"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          required
-                          onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                          className="w-full pr-10"
-                        />
-                      </div>
+                      <Input
+                        id="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        required
+                        className="w-full"
+                      />
                     </div>
                   </>
                 )}
@@ -265,38 +273,9 @@ const RegistroPage = () => {
                 className="w-full bg-orange-500 hover:bg-orange-600"
                 disabled={loading}
               >
-                {loading ? "Creando cuenta..." : "Crear cuenta"}
+                {loading ? "Procesando..." : "Continuar"}
               </Button>
-              
-              
-              {!user && !isGoogleAuth && (
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full"></span>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">O continúa con</span>
-                  </div>
-                  <Button 
-                    type="button"
-                    className="w-full bg-white border border-gray-300 hover:bg-gray-150 text-black flex items-center justify-center space-x-2 mt-3"
-                    disabled={loading}
-                  >
-                    <FcGoogle className="h-5 w-5" />
-                    <span>{loading ? "Registrando..." : "Registrarse con Google"}</span>
-                  </Button>
-                </div>
-              )}
             </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                ¿Ya tienes una cuenta?{' '}
-                <a onClick={handleIniciarSesion} className="text-orange-500 hover:text-orange-600 font-medium">
-                  Inicia sesión
-                </a>
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>
