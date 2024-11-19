@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { CrearPublicacion } from './../components/Publicacion/CrearPublicacion';
-import { Publicacion } from './../components/Publicacion/Publicacion';
-import { getPosts } from '../config/Publicaciones/Publicacion';
+import { CrearPublicacion } from './CrearPublicacion';
+import { Publicacion } from './Publicacion';
+import { getPosts } from '../../lib/firebase/config';
 
-const Home = () => {
+export const ListaPublicaciones = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,5 +36,3 @@ const Home = () => {
     </div>
   );
 };
-
-export default Home;
