@@ -85,8 +85,8 @@ export const Noticias = () => {
                             >
                                 <Card 
                                     className="group h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                                    onMouseEnter={() => setHoveredId(noticia.id)}
-                                    onMouseLeave={() => setHoveredId(null)}
+                                    // onMouseEnter={() => setHoveredId(noticia.id)}
+                                    // onMouseLeave={() => setHoveredId(null)}
                                 >
                                     <div className="relative aspect-video overflow-hidden rounded-t-lg">
                                         <img

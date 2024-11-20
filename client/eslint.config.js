@@ -23,11 +23,17 @@ export default [
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
     },
+    "env": {
+        "node": true,
+        "commonjs": true
+    },
     rules: {
       ...js.configs.recommended.rules,
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
+      "no-useless-catch": "off",
+      "node": true, // "off" or 0 both work
       'react/jsx-no-target-blank': 'off',
       'react-refresh/only-export-components': [
         'warn',
