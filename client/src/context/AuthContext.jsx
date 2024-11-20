@@ -17,6 +17,7 @@ import {
   getDocs
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase/config';
+import { useNavigate, useLocation  } from 'react-router-dom';
 
 const AuthContext = createContext({});
 
@@ -26,21 +27,36 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [needsRegistration, setNeedsRegistration] = useState(false);
+  const [newUser, setnewUser] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      const pathSegments = location.pathname.split('/').filter(Boolean);
+      const lastSegment = pathSegments[pathSegments.length - 1];
+      console.log(pathSegments, lastSegment);
+      
+      if (user && lastSegment !== 'registro') {
+        // Verificar si el usuario existe en la colección 'Usuarios'
         const userDoc = await getDoc(doc(db, 'Usuarios', user.uid));
         if (!userDoc.exists()) {
-          setNeedsRegistration(true);
+          setNeedsRegistration(true); // Usuario necesita registro
         }
-        setUser(user);
+        setUser(user); // Usuario autenticado
+      } else if (!user && lastSegment !== 'registro') {
+        // Si no hay usuario y la ruta no es 'registro', redirigir al login
+        navigate('/');
       } else {
+        // Rutas públicas (como 'registro') no requieren redirección
         setUser(null);
-        setNeedsRegistration(false);
+        setNeedsRegistration(true);
+        setnewUser(true)
       }
       setLoading(false);
-      console.log(user);
+      
+      console.log(user, 'Usuario');
+      console.log(window.location.href, 'Ruta');
       
     });
 
@@ -186,6 +202,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     needsRegistration,
+    newUser,
     loginWithGoogle,
     loginWithEmail,
     registerWithEmail,
