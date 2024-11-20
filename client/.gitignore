@@ -30,3 +30,4 @@ dist-ssr
 .env.production.local
 build/
 .DS_Store
+.vercel
