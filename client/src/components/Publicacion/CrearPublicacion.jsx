@@ -37,7 +37,7 @@ import { useAuth } from '../../context/AuthContext';
 
 
 const SportIcons = {
-  futbol: '⚽',
+  fútbol: '⚽',
   baloncesto: '🏀', 
   tenis: '🎾', 
   ciclismo: '🚴',
@@ -45,9 +45,8 @@ const SportIcons = {
 };
 
 const PrivacyIcons = {
-  public: '🌍',
-  private: '🔒',
-  friends: '👥'
+  público: '🌍',
+  privado: '🔒'
 };
 
 export const CrearPublicacion = ({ onPostCreated }) => {

@@ -12,10 +12,12 @@ import Error404 from './pages/Error404';
 import ComunidadDetalle from './pages/Comunidad/ComunidadDetalle';
 import EventoCard from './components/Evento/EventoCard';
 import CrearEvento from './components/Evento/CrearEvento';
+import { Toaster } from "@/components/ui/toaster"
 
 function App() {
   return (
     <AuthProvider>
+      <Toaster />
       <Routes>
           <Route exact path="/" element={<LoginPage/>}/>
           <Route exact path="/registro" element={<RegistroPage/>}/>
