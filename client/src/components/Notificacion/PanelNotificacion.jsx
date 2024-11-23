@@ -1,29 +1,47 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useState, useEffect } from "react";
-import { CheckCircleIcon, BellIcon } from "@heroicons/react/outline"; 
+import { CheckCircleIcon, BellIcon } from "@heroicons/react/outline";
+import { db } from "@/lib/firebase/config"; 
+import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 
 export const PanelNotificacion = () => {
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: 'Juan te envió una solicitud de amistad', time: '5m', isRead: false },
-    { id: 2, text: 'María comentó tu publicación', time: '10m', isRead: false },
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    // Aquí agregaria websocket
+    const notificationsRef = collection(db, "perfiles");
+
+    const unsubscribe = onSnapshot(notificationsRef, (snapshot) => {
+      const notificaciones = snapshot.docs
+        .filter((doc) => doc.data().Tipo === "notificacion") // Filtrar las notificaciones
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+      setNotifications(notificaciones);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const markAsRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((notification) =>
-        notification.id === id ? { ...notification, isRead: true } : notification
-      )
-    );
+  const markAsRead = async (id) => {
+    const notificationRef = doc(db, "perfiles", id);
+
+    try {
+      await updateDoc(notificationRef, { isRead: true });
+    } catch (error) {
+      console.error("Error al marcar como leída:", error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, isRead: true }))
-    );
+  const markAllAsRead = async () => {
+    try {
+      const updates = notifications.map((notification) =>
+        updateDoc(doc(db, "perfiles", notification.id), { isRead: true })
+      );
+      await Promise.all(updates);
+    } catch (error) {
+      console.error("Error al marcar todas como leídas:", error);
+    }
   };
 
   return (
@@ -32,8 +50,8 @@ export const PanelNotificacion = () => {
         <CardContent className="p-6 bg-white">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-lg text-gray-800">Notificaciones</h3>
-            <button 
-              onClick={markAllAsRead} 
+            <button
+              onClick={markAllAsRead}
               className="text-sm font-semibold text-blue-600 hover:text-blue-500 transition-colors"
             >
               Marcar todo como leído
@@ -42,10 +60,10 @@ export const PanelNotificacion = () => {
           <div className="space-y-4">
             {notifications.map((notification) => (
               <div
-                key={notification.id}
-                onClick={() => markAsRead(notification.id)}
+                key={notification.ID_Notificacion}
+                onClick={() => markAsRead(notification.ID_Notificacion)}
                 className={`p-4 rounded-lg flex items-start space-x-3 cursor-pointer transition-colors ${
-                  notification.isRead ? 'bg-gray-50' : 'bg-blue-50'
+                  notification.isRead ? "bg-gray-50" : "bg-blue-50"
                 } hover:bg-gray-100`}
               >
                 <div className="flex-shrink-0">
@@ -56,10 +74,8 @@ export const PanelNotificacion = () => {
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    {notification.text}
-                  </p>
-                  <span className="text-xs text-gray-500 mt-1 block">{notification.time}</span>
+                  <p className="text-sm font-medium text-gray-800">{notification.Mensaje}</p>
+                  <span className="text-xs text-gray-500 mt-1 block">{notification.Fecha}</span>
                 </div>
               </div>
             ))}
@@ -72,3 +88,4 @@ export const PanelNotificacion = () => {
     </div>
   );
 };
+
