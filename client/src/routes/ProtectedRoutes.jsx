@@ -17,7 +17,8 @@ export const ProtectedRoute = () => {
 
   // Si no hay usuario, redirige al login
   if (!user) {
-    return <Navigate to="/" replace />;
+    console.log('si esta pasando por aca xddddddd');
+    return <Navigate to="/registro" replace />;
   }
 
   // Si hay usuario, permite acceder a la ruta

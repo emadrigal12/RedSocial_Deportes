@@ -10,7 +10,9 @@ export function Rutas({ children }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    console.log('si esta pasando por aca xddddddd');
+    
+    return <Navigate to="/registro" state={{ from: location }} replace />;
   }
 
   if (needsRegistration) {

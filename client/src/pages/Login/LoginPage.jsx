@@ -110,9 +110,10 @@ import { useAuth } from '../../context/AuthContext';
                       Recordarme
                     </label>
                   </div>
-                  <a href="/recuperar-contrasena" className="text-sm text-orange-500 hover:text-orange-600">
+                  <button className="text-sm text-orange-500 hover:text-orange-600"
+                          onClick={()=> navigate('/recuperar')}>
                     ¿Olvidaste tu contraseña?
-                  </a>
+                  </button>
                 </div>
                 <Button 
                   type="submit" 

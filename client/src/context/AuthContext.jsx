@@ -43,8 +43,8 @@ export const AuthProvider = ({ children }) => {
         if (!userDoc.exists()) {
           setNeedsRegistration(true); // Usuario necesita registro
         }
-        setUser(user); // Usuario autenticado
-      } else if (!user && lastSegment !== 'registro') {
+        setUser(user); 
+      } else if (!user && (lastSegment !== 'registro' || lastSegment !== 'recuperar') ) {
         // Si no hay usuario y la ruta no es 'registro', redirigir al login
         navigate('/');
       } else {
@@ -55,8 +55,7 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
       
-      console.log(user, 'Usuario');
-      console.log(window.location.href, 'Ruta');
+      console.log(lastSegment, 'recuperar-contrasena');
       
     });
 
@@ -68,11 +67,9 @@ export const AuthProvider = ({ children }) => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       
-      // Check if user exists in Usuarios collection
       const userDoc = await getDoc(doc(db, 'Usuarios', result.user.uid));
       
       if (!userDoc.exists()) {
-        // Create basic user document
         await setDoc(doc(db, 'Usuarios', result.user.uid), {
           email: result.user.email,
           nombre: result.user.displayName?.split(' ')[0] || '',
@@ -84,7 +81,6 @@ export const AuthProvider = ({ children }) => {
         return { user: result.user, isNewUser: true };
       }
 
-      // Check if user has completed interests
       const interesesDoc = await getDoc(doc(db, 'Intereses', result.user.uid));
       if (!interesesDoc.exists()) {
         return { user: result.user, needsInterests: true };
@@ -101,14 +97,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       
-      // Check if user exists in Usuarios collection
       const userDoc = await getDoc(doc(db, 'Usuarios', result.user.uid));
       
       if (!userDoc.exists()) {
         throw new Error('Usuario no encontrado');
       }
 
-      // Check if user has completed interests
       const interesesDoc = await getDoc(doc(db, 'Intereses', result.user.uid));
       if (!interesesDoc.exists()) {
         return { user: result.user, needsInterests: true };
@@ -125,7 +119,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Create user document
       await setDoc(doc(db, 'Usuarios', result.user.uid), {
         ...userData,
         email,
@@ -145,7 +138,6 @@ export const AuthProvider = ({ children }) => {
     try {
       if (!user) throw new Error('No hay usuario autenticado');
       
-      // Update user document
       await setDoc(doc(db, 'Usuarios', user.uid), {
         ...userData,
         updatedAt: new Date().toISOString()

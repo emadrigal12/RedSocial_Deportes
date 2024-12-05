@@ -11,7 +11,7 @@ const RegistroPage = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const navigate = useNavigate();
-  const { user, completeRegistration, needsRegistration } = useAuth();
+  const { user, completeRegistration, needsRegistration, newUser } = useAuth();
 
   const [formData, setFormData] = useState({
     nombre: user?.displayName?.split(' ')[0] || '',
@@ -25,15 +25,18 @@ const RegistroPage = () => {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !newUser) {
       navigate('/login');
       return;
     }
+
 
     if (!needsRegistration) {
       navigate('/home');
       return;
     }
+
+    
 
     const isGoogleUser = user?.providerData?.[0]?.providerId === 'google.com';
     

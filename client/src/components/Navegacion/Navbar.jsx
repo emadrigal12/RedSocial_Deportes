@@ -64,11 +64,13 @@ export const Navbar = () => {
           </h1>
 
           <div className="hidden sm:flex items-center space-x-6">
-            <Button className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200">
+            <Button className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200"
+                    onClick={()=> navigate('/home')}>
               <Home className="h-6 w-6" />
               <span className="ml-2 hidden lg:inline">Home</span>
             </Button>
-            <Button className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200">
+            <Button className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200"
+                    onClick={()=> navigate('/comunidades')}>
               <Users className="h-6 w-6" />
               <span className="ml-2 hidden lg:inline">Comunidades</span>
             </Button>
