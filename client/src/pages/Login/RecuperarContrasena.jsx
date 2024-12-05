@@ -1,22 +1,50 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
 import { Mail, CheckCircle2 } from 'lucide-react';
 
+import { sendPasswordReset } from '../../config/Login/RecuperarContrasena';
+import { useToast } from "@/hooks/use-toast"
 const RecuperarContrasena = () => {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [email, setEmail] = useState('');
-
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const result = await sendPasswordReset(email);
+      
+      if (result.success) {
+        setEmailSent(true);
+        toast({
+          variant: "outline",
+          title: "Éxito",
+          description: result.message
+        });
+      } else {
+        console.log(result.message);
+
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.message
+          
+        });
+      }
+    } catch (error) {
+      toast.error('Ocurrió un error al intentar restablecer la contraseña');
+    } finally {
       setLoading(false);
-      setEmailSent(true);
-    }, 1500);
+    }
   };
 
   const handleTryAnotherEmail = () => {

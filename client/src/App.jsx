@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import LoginPage from './pages/Login/LoginPage';
 import Intereses from './pages/Intereses/Intereses';
 import RegistroPage from './pages/Login/RegistroPage';
+import RecuperarContrasena from './pages/Login/RecuperarContrasena';
 import LayoutPrincipal from './layout/LayoutPrincipal';
 import Comunidad from './pages/Comunidad/Comunidad';
 import Error404 from './pages/Error404';
@@ -21,6 +22,7 @@ function App() {
       <Routes>
           <Route exact path="/" element={<LoginPage/>}/>
           <Route exact path="/registro" element={<RegistroPage/>}/>
+          <Route exact path="/recuperar" element={<RecuperarContrasena/>}/>
           <Route exact path="/intereses" element={<Intereses/>}/>
           <Route exact path="/comunidades" element={<Comunidad/>}/>
           <Route path="/comunidad/:id" element={<ComunidadDetalle />} />
