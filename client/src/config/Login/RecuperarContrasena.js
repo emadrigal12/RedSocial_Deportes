@@ -48,15 +48,6 @@ import {
     } catch (error) {
       console.error('Error en restablecimiento de contraseña:', error);
       
-      const errorMessages = {
-        'Usuario no encontrado o registrado con Google': 
-          'No se encontró un usuario válido para restablecer contraseña',
-        'Usuario registrado con método diferente': 
-          'Este usuario no puede restablecer contraseña',
-        'auth/user-not-found': 'No se encontró un usuario con este correo',
-        'auth/invalid-email': 'Correo electrónico inválido',
-        'auth/too-many-requests': 'Demasiados intentos. Por favor intenta más tarde'
-      };
       
       return {
         success: false,

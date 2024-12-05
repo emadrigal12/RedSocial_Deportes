@@ -2,15 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { PropTypes } from 'prop-types';
 import { X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { updateProfile } from 'firebase/auth';
+import { onFindById } from '../../config/Login/Login';
+import { auth, db } from '../../lib/firebase/config';
+import { useToast } from "@/hooks/use-toast"
 
 const EditarPerfil = ({ user, onClose }) => {
   const [afinidades, setAfinidades] = useState('');
   const [biografia, setBiografia] = useState('');
   const [fotoPerfil, setFotoPerfil] = useState('');
   const [nombrePerfil, setNombrePerfil] = useState('');
+  const [nombreUsuario, setUsuario] = useState('');
   const [privacidad, setPrivacidad] = useState(true);
   const [ubicacion, setUbicacion] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +26,7 @@ const EditarPerfil = ({ user, onClose }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
-
+  const { toast } = useToast();
   useEffect(() => {
     if (user) {
       setNombrePerfil(user.displayName || '');
@@ -29,16 +36,17 @@ const EditarPerfil = ({ user, onClose }) => {
 
   const loadUserData = async () => {
     try {
-      const firestore = getFirestore();
-      const userDocRef = doc(firestore, `users/${user.uid}`);
-      const docSnapshot = await getDoc(userDocRef);
-      if (docSnapshot.exists()) {
-        const userData = docSnapshot.data();
-        setAfinidades(userData.afinidades || '');
-        setBiografia(userData.biografia || '');
-        setFotoPerfil(userData.fotoPerfil || '');
-        setPrivacidad(userData.privacidad ?? true);
-        setUbicacion(userData.ubicacion || '');
+      const docSnapshot = await onFindById(user.uid);
+      const userDocRef = doc(db, docSnapshot.ref.path);
+      const userData = await getDoc(userDocRef);
+      
+      if (userData.exists()) {
+        setAfinidades(userData.data().afinidades || '');
+        setUsuario(userData.data().usuario || '');
+        setBiografia(userData.data().biografia || '');
+        setFotoPerfil(userData.data().fotoPerfil || '');
+        setPrivacidad(userData.data().privacidad ?? true);
+        setUbicacion(userData.data().ubicacion || '');
       }
     } catch (error) {
       setError('Error al cargar datos del usuario.');
@@ -49,6 +57,13 @@ const EditarPerfil = ({ user, onClose }) => {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validaciones de archivo
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Tipo de archivo no permitido. Solo se aceptan imágenes.');
+        return;
+      }
+
       if (file.size > 5 * 1024 * 1024) {
         setError('El archivo es demasiado grande. Máximo 5MB permitido.');
         return;
@@ -69,49 +84,83 @@ const EditarPerfil = ({ user, onClose }) => {
   };
 
   const handleSave = async () => {
-    if (!nombrePerfil.trim()) {
-      setError('El nombre de perfil es obligatorio.');
+    // Validaciones más exhaustivas
+    if (!nombreUsuario.trim()) {
+      setError('El nombre de usuario es obligatorio.');
       return;
     }
-
+  
+    if (nombreUsuario.length > 50) {
+      setError('El nombre de perfil no puede exceder los 50 caracteres.');
+      return;
+    }
+  
     if (biografia.length > 150) {
       setError('La biografía no puede exceder los 150 caracteres.');
       return;
     }
-
+  
+    if (afinidades.length > 100) {
+      setError('Las afinidades no pueden exceder los 100 caracteres.');
+      return;
+    }
+  
     try {
       setLoading(true);
       setError('');
-
+  
       let updatedFotoPerfil = fotoPerfil;
-
+  
       // Subir foto a Cloudinary si es necesario
       if (selectedFile) {
         const mediaInfo = await uploadToCloudinary(selectedFile, (progress) => {
           setUploadProgress(progress);
         });
+        
         if (!mediaInfo?.url) {
           throw new Error('Error al subir la imagen a Cloudinary.');
         }
+        
         updatedFotoPerfil = mediaInfo.url;
       }
+  
+      if (auth.currentUser) {
+        const docSnapshot = await onFindById(user.uid);
+        const userDocRef = doc(db, docSnapshot.ref.path);
+        await updateDoc(userDocRef, {
+          afinidades: afinidades.trim(),
+          biografia: biografia.trim(),
+          fotoPerfil: updatedFotoPerfil,
+          privacidad,
+          ubicacion: ubicacion.trim(),
+          usuario: nombreUsuario.trim()
+        });
+  
+        
+        await updateProfile(auth.currentUser, {
+          displayName: nombrePerfil,
+          photoURL: updatedFotoPerfil
+        });
 
-      // Actualizar datos en Firestore
-      const firestore = getFirestore();
-      const userDocRef = doc(firestore, `users/${user.uid}`);
-      await updateDoc(userDocRef, {
-        afinidades,
-        biografia,
-        fotoPerfil: updatedFotoPerfil,
-        privacidad,
-        ubicacion,
-      });
-
-      // Cerrar modal después de guardar
+        toast({
+          variant: "outline",
+          title: "Éxito",
+          description: "Perfil editado con éxito."
+        });
+      } else {
+        setError('El usuario no está autenticado.');
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: 'El usuario no está autenticado.'
+          
+        });
+      }
+  
       onClose();
     } catch (error) {
-      setError('Error al guardar los cambios.');
-      //console.error(error);
+      console.error('Error al guardar:', error);
+      setError(error.message || 'Error al guardar los cambios.');
     } finally {
       setLoading(false);
     }
@@ -133,7 +182,7 @@ const EditarPerfil = ({ user, onClose }) => {
           <label htmlFor="afinidades" className="block font-medium mb-2">
             Afinidades
           </label>
-          <input
+          <Input
             type="text"
             id="afinidades"
             value={afinidades}
@@ -147,7 +196,7 @@ const EditarPerfil = ({ user, onClose }) => {
           <label htmlFor="biografia" className="block font-medium mb-2">
             Biografía
           </label>
-          <textarea
+          <Textarea
             id="biografia"
             value={biografia}
             onChange={(e) => setBiografia(e.target.value.slice(0, 150))}
@@ -171,7 +220,7 @@ const EditarPerfil = ({ user, onClose }) => {
               <img
                 src={previewUrl}
                 alt="Vista previa"
-                className="max-h-80 w-full rounded-lg object-cover"
+                className="max-h-80 w-full rounded-lg object-cover mb-2"
                 aria-label="Vista previa de la imagen"
               />
               <Button
@@ -186,19 +235,18 @@ const EditarPerfil = ({ user, onClose }) => {
             </motion.div>
           )}
           <div className="flex items-center space-x-2">
-            <input
+            <Input
               type="file"
               ref={fileInputRef}
               onChange={handleFileSelect}
               accept="image/*,video/*"
-              className="hidden"
+              className="hidden mb-2"
               aria-label="Seleccionar archivo"
             />
             <Button
               type="button"
-              variant="outline"
               size="sm"
-              className="text-orange-500 border-orange-200 hover:bg-orange-50"
+              className="bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white mr-4"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading}
             >
@@ -211,10 +259,10 @@ const EditarPerfil = ({ user, onClose }) => {
           <label htmlFor="nombrePerfil" className="block font-medium mb-2">
             Nombre de Perfil
           </label>
-          <input
+          <Input
             type="text"
             id="nombrePerfil"
-            value={nombrePerfil}
+            value={nombreUsuario}
             onChange={(e) => setNombrePerfil(e.target.value)}
             className="border border-gray-300 rounded-md px-3 py-2 w-full"
             aria-label="Campo de nombre de perfil"
@@ -242,7 +290,7 @@ const EditarPerfil = ({ user, onClose }) => {
           <label htmlFor="ubicacion" className="block font-medium mb-2">
             Ubicación
           </label>
-          <input
+          <Input
             type="text"
             id="ubicacion"
             value={ubicacion}
@@ -253,7 +301,7 @@ const EditarPerfil = ({ user, onClose }) => {
         </div>
 
         <div className="flex justify-end space-x-4">
-          <Button onClick={handleCancel} className="text-gray-500 hover:text-gray-700">
+          <Button onClick={handleCancel} className="bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white">
             Cancelar
           </Button>
           <Button
@@ -272,7 +320,11 @@ const EditarPerfil = ({ user, onClose }) => {
 };
 
 EditarPerfil.propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.shape({
+    uid: PropTypes.string.isRequired,
+    displayName: PropTypes.string,
+    photoURL: PropTypes.string
+  }).isRequired,
   onClose: PropTypes.func.isRequired,
 };
 

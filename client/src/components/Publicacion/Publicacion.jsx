@@ -270,7 +270,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={currentPost.userAvatar || "/api/placeholder/32/32"} />
+              <AvatarImage src={currentPost.userId == user.uid ? user.photoURL :currentPost.userAvatar || "/api/placeholder/32/32"} />
               <AvatarFallback>{currentPost.userName?.[0] || 'U'}</AvatarFallback>
             </Avatar>
             <div>
@@ -413,6 +413,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
                 comment={comment}
                 onDelete={handleDeleteComment}
                 canDelete={user.uid === comment.userId || user.uid === currentPost.userId}
+                user = {user}
               />
             ))}
             

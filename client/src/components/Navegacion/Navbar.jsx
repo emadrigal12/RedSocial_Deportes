@@ -151,7 +151,7 @@ export const Navbar = () => {
       </div>
 
       {isEditProfileOpen && (
-        <EditarPerfil onClose={handleCloseEditProfile} />
+        <EditarPerfil user={user} onClose={handleCloseEditProfile}  />
       )}
       </div>
     </nav>

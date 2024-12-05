@@ -16,12 +16,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export const Comentarios = ({ comment, onDelete, canDelete, isInModal = false }) => {
+export const Comentarios = ({ comment, onDelete, canDelete, isInModal = false, user }) => {
     
   return (
     <div className={`flex items-start space-x-3 ${!isInModal ? 'mb-3 border-b pb-3 last:border-b-0' : 'p-3 hover:bg-gray-50 rounded-lg'}`}>
       <Avatar className="h-8 w-8">
-        <AvatarImage src={comment.userAvatar || "/api/placeholder/32/32"} />
+        <AvatarImage src={comment.userId == user.uid ? user.photoURL : comment.userAvatar  || "/api/placeholder/32/32"} />
         <AvatarFallback>{comment.userName?.[0] || 'U'}</AvatarFallback>
       </Avatar>
       <div className="flex-1">

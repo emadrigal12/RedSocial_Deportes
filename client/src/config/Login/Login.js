@@ -1,7 +1,7 @@
 /* METODOS DEL CRUD */
 
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc } from "firebase/firestore";
-import { db } from "./firebase-config";
+import { db } from "../../lib/firebase/config";
 
 /* 1. CREAR CONSTANTE PARA LA COLECCION */
 

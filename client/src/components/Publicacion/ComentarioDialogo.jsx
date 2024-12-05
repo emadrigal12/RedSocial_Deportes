@@ -8,9 +8,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Comentarios } from './Comentarios';
+import { useAuth } from '../../context/AuthContext';
 
 
 export const ComentarioDialogo = ({ comments, onDeleteComment, currentUserId, postUserId }) => {
+  const { user } = useAuth();
     return (
       <Dialog>
         <DialogTrigger asChild>
@@ -32,6 +34,7 @@ export const ComentarioDialogo = ({ comments, onDeleteComment, currentUserId, po
                 onDelete={onDeleteComment}
                 canDelete={currentUserId === comment.userId || currentUserId === postUserId}
                 isInModal={true}
+                user={user}
               />
             ))}
           </div>
