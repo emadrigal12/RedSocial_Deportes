@@ -6,9 +6,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MessageCircle, MoreVertical, Share2, ThumbsUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import ReportPost from "./Publicacion/ReportarPublicacion";
 
 export const Publicacion = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return '';
@@ -47,6 +49,24 @@ export const Publicacion = ({ post }) => {
               >
                 <MoreVertical className="h-5 w-5" />
               </Button>
+                {menuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg z-50">
+                  <ul>
+
+                    <li className="p-2 hover:bg-gray-100 cursor-pointer">
+                      <Button
+                        onClick={() => {
+   
+                          <ReportPost postId={post.id} />;
+                        }}
+                        className="w-full text-left"
+                      >
+                        Reportar Publicación
+                      </Button>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
             
             <p className="mt-4 text-base leading-relaxed">{post.content}</p>
