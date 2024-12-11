@@ -118,29 +118,70 @@ export const Navbar = () => {
           
           
         </div>
-
+        <div className="sm:hidden flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
         {isMenuOpen && (
-          <div className="sm:hidden border-t border-orange-500">
-            <div className="flex flex-col space-y-1 py-4">
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+          <div className="sm:hidden absolute top-16 left-0 w-full bg-gradient-to-r from-orange-400 to-orange-600 border-t border-orange-500">
+            <div className="flex flex-col space-y-1 py-4 px-4">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  navigate('/home');
+                  setIsMenuOpen(false);
+                }}
+              >
                 <Home className="mr-2 h-6 w-6" />
                 Home
               </Button>
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  navigate('/comunidades');
+                  setIsMenuOpen(false);
+                }}
+              >
                 <Users className="mr-2 h-6 w-6" />
                 Comunidades
               </Button>
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  // Agregar la navegación a notificaciones si existe
+                  setIsMenuOpen(false);
+                }}
+              >
                 <Bell className="mr-2 h-6 w-6" />
                 Notificaciones
               </Button>
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  handleEditProfileClick();
+                  setIsMenuOpen(false);
+                }}
+              >
                 <User className="mr-2 h-6 w-6" />
                 Perfil
               </Button>
               <Button 
-                className="flex items-center text-white hover:bg-red-500 justify-start"
-                onClick={handleLogout}
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-red-500 justify-start w-full"
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
               >
                 <LogOut className="mr-2 h-6 w-6" />
                 Cerrar Sesión

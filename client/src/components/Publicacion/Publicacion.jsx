@@ -354,7 +354,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
           <p className="text-base leading-relaxed">{currentPost.content}</p>
         )}
 
-        {currentPost.mediaUrl && (
+{currentPost.mediaUrl && (
           <div className="mt-4">
             {currentPost.mediaUrl.includes('video') ? (
               <video src={currentPost.mediaUrl} controls className="w-full rounded-lg" />
@@ -368,7 +368,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-between border-t pt-4">
+        <div className="mt-6 flex items-center justify-between border-t pt-4 flex-wrap gap-2">
           <Button
             className={`flex items-center space-x-2 ${
               isLiked
@@ -378,7 +378,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
             onClick={handleLike}
           >
             <ThumbsUp className="h-5 w-5" />
-            <span>Me gusta ({currentPost.likes || 0})</span>
+            <span className="md:block hidden">Me gusta ({currentPost.likes || 0})</span>
           </Button>
 
           <Button
@@ -390,7 +390,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
             onClick={() => setIsCommenting(!isCommenting)}
           >
             <MessageCircle className="h-5 w-5" />
-            <span>Comentar ({comments.length})</span>
+            <span className="md:block hidden">Comentar ({comments.length})</span>
           </Button>
 
           <Button
@@ -398,7 +398,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
             onClick={handleShare}
           >
             <Share2 className="h-5 w-5" />
-            <span>Compartir</span>
+            <span className="md:block hidden">Compartir</span>
           </Button>
         </div>
 
