@@ -5,13 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { onInsert } from '../../config/Login/Login';
+
 
 const RegistroPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const navigate = useNavigate();
-  const { user, completeRegistration, needsRegistration, newUser } = useAuth();
+  const { user, completeRegistration, needsRegistration, newUser, registerWithEmail } = useAuth();
 
   const [formData, setFormData] = useState({
     nombre: user?.displayName?.split(' ')[0] || '',
@@ -19,7 +21,7 @@ const RegistroPage = () => {
     usuario: '',
     telefono: '',
     fechaNacimiento: '',
-    email: user?.email || '',
+    email: '',
     password: '',
     confirmPassword: ''
   });
@@ -86,6 +88,13 @@ const RegistroPage = () => {
         fechaNacimiento: formData.fechaNacimiento,
         email: formData.email,
       };
+
+      if (!isGoogleUser) {
+        await onInsert(userData);
+        await registerWithEmail(formData.email, formData.password, userData);
+        navigate('/intereses');
+      
+      }
 
       // Completa el registro del usuario
       await completeRegistration(userData);
@@ -209,7 +218,13 @@ const RegistroPage = () => {
                     id="email"
                     type="email"
                     value={formData.email}
-                    disabled
+                    onChange={(e) => {
+                      if (!isGoogleUser) {
+                        setFormData(prev => ({ ...prev, email: e.target.value }));
+                      }
+                    }}
+                    required={!isGoogleUser}
+                    disabled={isGoogleUser}
                     className="w-full"
                   />
                 </div>
@@ -255,6 +270,7 @@ const RegistroPage = () => {
                         className="w-full"
                       />
                     </div>
+                    
                   </>
                 )}
               </div>
