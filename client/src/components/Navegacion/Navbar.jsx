@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import EditarPerfil from '../Perfil/EditarPerfil';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+// Navbar.jsx
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -43,6 +45,15 @@ export const Navbar = () => {
     }
   };
   
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+
+  const handleEditProfileClick = () => {
+    setIsEditProfileOpen(true);
+  };
+
+  const handleCloseEditProfile = () => {
+    setIsEditProfileOpen(false);
+  };
 
   return (
     <nav className="bg-gradient-to-r from-orange-400 to-orange-600 fixed w-full z-50 shadow-lg">
@@ -84,8 +95,9 @@ export const Navbar = () => {
                   <span>Mi Cuenta</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50">
-                  <User className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50"
+                                  onClick={handleEditProfileClick}>
+                  <User className="mr-2 h-4 w-4"  />
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50">
@@ -102,39 +114,74 @@ export const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-
-          <Button
-            size="icon"
-            className="sm:hidden text-white hover:text-orange-300"
+          
+          
+          
+        </div>
+        <div className="sm:hidden flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
-
         {isMenuOpen && (
-          <div className="sm:hidden border-t border-orange-500">
-            <div className="flex flex-col space-y-1 py-4">
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+          <div className="sm:hidden absolute top-16 left-0 w-full bg-gradient-to-r from-orange-400 to-orange-600 border-t border-orange-500">
+            <div className="flex flex-col space-y-1 py-4 px-4">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  navigate('/home');
+                  setIsMenuOpen(false);
+                }}
+              >
                 <Home className="mr-2 h-6 w-6" />
                 Home
               </Button>
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  navigate('/comunidades');
+                  setIsMenuOpen(false);
+                }}
+              >
                 <Users className="mr-2 h-6 w-6" />
                 Comunidades
               </Button>
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  // Agregar la navegación a notificaciones si existe
+                  setIsMenuOpen(false);
+                }}
+              >
                 <Bell className="mr-2 h-6 w-6" />
                 Notificaciones
               </Button>
-              <Button className="flex items-center text-white hover:bg-orange-500 justify-start">
+              <Button 
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
+                onClick={() => {
+                  handleEditProfileClick();
+                  setIsMenuOpen(false);
+                }}
+              >
                 <User className="mr-2 h-6 w-6" />
                 Perfil
               </Button>
               <Button 
-                className="flex items-center text-white hover:bg-red-500 justify-start"
-                onClick={handleLogout}
+                variant="ghost" 
+                className="flex items-center text-white hover:bg-red-500 justify-start w-full"
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
               >
                 <LogOut className="mr-2 h-6 w-6" />
                 Cerrar Sesión
@@ -142,6 +189,11 @@ export const Navbar = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {isEditProfileOpen && (
+        <EditarPerfil user={user} onClose={handleCloseEditProfile}  />
+      )}
       </div>
     </nav>
   );

@@ -32,9 +32,12 @@ import {
 import { createPost } from '../../config/Publicaciones/Publicacion';
 import { uploadToCloudinary } from '../../services/cloudinary';
 import { getAuth } from 'firebase/auth';
+import { useAuth } from '../../context/AuthContext';
+
+
 
 const SportIcons = {
-  futbol: '⚽',
+  fútbol: '⚽',
   baloncesto: '🏀', 
   tenis: '🎾', 
   ciclismo: '🚴',
@@ -42,9 +45,8 @@ const SportIcons = {
 };
 
 const PrivacyIcons = {
-  public: '🌍',
-  private: '🔒',
-  friends: '👥'
+  público: '🌍',
+  privado: '🔒'
 };
 
 export const CrearPublicacion = ({ onPostCreated }) => {
@@ -61,7 +63,7 @@ export const CrearPublicacion = ({ onPostCreated }) => {
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
   const auth = getAuth();
-
+  const { user } = useAuth();
   const MAX_CHARACTERS = 280;
 
   useEffect(() => {
@@ -144,7 +146,7 @@ export const CrearPublicacion = ({ onPostCreated }) => {
         createdAt: new Date(),
       };
 
-      await createPost(postData);
+      await createPost(user,postData);
       setContenido('');
       setTipoDeporte('');
       setPrivacidad('');
