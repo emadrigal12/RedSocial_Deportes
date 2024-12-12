@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, MoreVertical, Share2, ThumbsUp, Edit, Trash } from 'lucide-react';
+import { MessageCircle, MoreVertical, Share2, ThumbsUp, Edit, Trash, Flag } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
@@ -57,6 +57,11 @@ export const Publicacion = ({ post, onPostUpdate }) => {
   const [isDeleted, setIsDeleted] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportSent, setReportSent] = useState(false); 
+  const [interactionsDisabled, setInteractionsDisabled] = useState(false); 
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'Publicaciones', post.id), (doc) => {
@@ -89,11 +94,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
       return () => unsubscribe();
     }
   }, [post.id, isDeleted]);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [reportSent, setReportSent] = useState(false); 
-  const [interactionsDisabled, setInteractionsDisabled] = useState(false); 
-  const menuRef = useRef(null);
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -284,6 +285,18 @@ export const Publicacion = ({ post, onPostUpdate }) => {
     return null;
   }
 
+  const handleReportPost = (postId) => {
+    console.log("Abriendo formulario para reportar:", postId);
+    setReportOpen(true); 
+  };
+
+  const handleReportSubmit = () => {
+    console.log("Reporte enviado");
+    setReportSent(true); 
+    setInteractionsDisabled(true);
+    setReportOpen(false);
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader className="bg-gray-100 p-4">
@@ -305,7 +318,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
               )}
             </div>
           </div>
-          {currentPost.userId === user.uid && (
+          
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -316,10 +329,15 @@ export const Publicacion = ({ post, onPostUpdate }) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                
+              {currentPost.userId === user.uid && (
+            <div>
+
                 <DropdownMenuItem onClick={() => setIsEditing(true)}>
                   <Edit className="h-5 w-5 mr-2" />
                   Editar
                 </DropdownMenuItem>
+                
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem
@@ -348,9 +366,15 @@ export const Publicacion = ({ post, onPostUpdate }) => {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+                </div>
+
+               )}
+              <DropdownMenuItem onClick={() => handleReportPost(post.id)}>
+                  <Flag className="h-5 w-5 mr-2" />
+                  Reportar
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
         </div>
       </CardHeader>
 
@@ -472,118 +496,9 @@ export const Publicacion = ({ post, onPostUpdate }) => {
               </Button>
             </div>
           </div>
-  const handleMenuToggle = () => {
-    setMenuOpen(!menuOpen);
-  };
+        )}
 
-  const handleReportPost = (postId) => {
-    console.log("Abriendo formulario para reportar:", postId);
-    setReportOpen(true); 
-  };
-
-  const handleReportSubmit = () => {
-    console.log("Reporte enviado");
-    setReportSent(true); 
-    setInteractionsDisabled(true);
-    setReportOpen(false);
-  };
-
-  return (
-    <Card className="mb-6 relative">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={post.userAvatar || "/api/placeholder/32/32"} />
-            <AvatarFallback>{post.userName?.[0] || 'U'}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold text-lg">{post.userName}</h3>
-                <span className="text-sm text-gray-500">
-                  {formatTimestamp(post.createdAt)}
-                </span>
-              </div>
-              <div className="relative" ref={menuRef}>
-                <Button
-                  className="bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
-                  size="icon"
-                  onClick={handleMenuToggle}
-                  disabled={interactionsDisabled} 
-                >
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
-                {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg z-50 border">
-                    <ul className="py-1">
-                      <li className="hover:bg-gray-100">
-                        <button
-                          onClick={() => handleReportPost(post.id)}
-                          className="w-full text-left px-4 py-2 text-gray-700 hover:text-orange-500"
-                          disabled={interactionsDisabled} 
-                        >
-                          Reportar Publicación
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <p className="mt-4 text-base leading-relaxed">{post.content}</p>
-
-            {post.mediaUrl && (
-              <div className="mt-4">
-                {post.mediaUrl.includes('video') ? (
-                  <video 
-                    src={post.mediaUrl} 
-                    controls 
-                    className="w-full rounded-lg"
-                  />
-                ) : (
-                  <img 
-                    src={post.mediaUrl} 
-                    alt="Contenido de la publicación" 
-                    className="w-full rounded-lg"
-                  />
-                )}
-              </div>
-            )}
-
-            <div className="mt-6 flex items-center space-x-6 border-t pt-4">
-              <Button
-                className={`flex items-center space-x-2 ${
-                  isLiked
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white'
-                }`}
-                onClick={handleLike}
-                disabled={interactionsDisabled} 
-              >
-                <ThumbsUp className="h-5 w-5" />
-                <span>Me gusta ({post.likes})</span>
-              </Button>
-
-              <Button
-                className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
-                disabled={interactionsDisabled}
-              >
-                <MessageCircle className="h-5 w-5" />
-                <span>Comentar ({post.comments})</span>
-              </Button>
-
-              <Button
-                className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
-                disabled={interactionsDisabled} 
-              >
-                <Share2 className="h-5 w-5" />
-                <span>Compartir</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-
+        
         {/* Renderiza el formulario de reporte si está abierto */}
         {reportOpen && !reportSent && (
           <ReportPublicacion
@@ -622,8 +537,3 @@ Publicacion.propTypes = {
   }).isRequired,
   onPostUpdate: PropTypes.func
 };
-    likes: PropTypes.number.isRequired,
-    comments: PropTypes.number.isRequired,
-  }).isRequired,
-};
-
