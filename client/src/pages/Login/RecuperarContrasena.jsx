@@ -10,6 +10,7 @@ import { Mail, CheckCircle2 } from 'lucide-react';
 
 import { sendPasswordReset } from '../../config/Login/RecuperarContrasena';
 import { useToast } from "@/hooks/use-toast"
+
 const RecuperarContrasena = () => {
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);

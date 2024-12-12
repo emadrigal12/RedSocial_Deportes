@@ -125,7 +125,7 @@ export const AuthProvider = ({ children }) => {
         authProvider: 'email',
         createdAt: new Date().toISOString()
       });
-
+      await loginWithEmail(email, password)
       setNeedsRegistration(false);
       return { user: result.user, isNewUser: true };
     } catch (error) {

@@ -18,16 +18,33 @@ import {
     FieldValue
   } from 'firebase/firestore';
 
+  import { onFindById } from '../../config/Login/Login';
+
 
 const postsCollection = collection(db, 'Publicaciones');
+
+const onGetDocumento = async (id)=>{
+  try {
+      const docSeleccionado = await onFindById(id) 
+      return ({id, ...docSeleccionado.data()})
+  } catch (error) {
+      Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error
+      });
+  }
+}
 
 export const createPost = async (user, postData) => {
   try {
     if (!user) throw new Error('Usuario no autenticado');
 
+    const usuario = await onGetDocumento(user.uid);
+
     const postRef = await addDoc(collection(db, 'Publicaciones'), {
       userId: user.uid,
-      userName: user.displayName || 'Usuario Anónimo',
+      userName: user.displayName || `${usuario.nombre} ${usuario.apellidos} `,
       userAvatar: user.photoURL || null,
       ...postData,
       createdAt: serverTimestamp(),

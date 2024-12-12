@@ -127,9 +127,10 @@ import { useAuth } from '../../context/AuthContext';
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 ¿No tienes una cuenta?{' '}
-                <a href="/registro" className="text-orange-500 hover:text-orange-600 font-medium">
-                  Regístrate
-                </a>
+                <button className="text-sm text-orange-500 hover:text-orange-600"
+                          onClick={()=> navigate('/registro')}>
+                    Regístrate
+                </button>
               </p>
             </div>
           </CardContent>

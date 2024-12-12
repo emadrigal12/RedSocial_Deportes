@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBrowserRouter, Route, RouterProvider, Routes } from 'react-router-dom';
+import { createBrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext'; // Asegúrate de que la ruta sea correcta
 import { router } from './routes/Index'; // Asegúrate de que la ruta sea correcta
 import Home from './pages/Home';
@@ -11,8 +11,6 @@ import LayoutPrincipal from './layout/LayoutPrincipal';
 import Comunidad from './pages/Comunidad/Comunidad';
 import Error404 from './pages/Error404';
 import ComunidadDetalle from './pages/Comunidad/ComunidadDetalle';
-import EventoCard from './components/Evento/EventoCard';
-import CrearEvento from './components/Evento/CrearEvento';
 import { Toaster } from "@/components/ui/toaster"
 
 function App() {

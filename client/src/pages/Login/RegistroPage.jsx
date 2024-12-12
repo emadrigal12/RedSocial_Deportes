@@ -8,10 +8,12 @@ import { useAuth } from '../../context/AuthContext';
 
 const RegistroPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setconfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const navigate = useNavigate();
-  const { user, completeRegistration, needsRegistration, newUser } = useAuth();
+  const { user, completeRegistration, needsRegistration, newUser,registerWithEmail } = useAuth();
 
   const [formData, setFormData] = useState({
     nombre: user?.displayName?.split(' ')[0] || '',
@@ -19,25 +21,10 @@ const RegistroPage = () => {
     usuario: '',
     telefono: '',
     fechaNacimiento: '',
-    email: user?.email || '',
-    password: '',
-    confirmPassword: ''
+    email: user?.email || ''
   });
 
   useEffect(() => {
-    if (!user && !newUser) {
-      navigate('/login');
-      return;
-    }
-
-
-    if (!needsRegistration) {
-      navigate('/home');
-      return;
-    }
-
-    
-
     const isGoogleUser = user?.providerData?.[0]?.providerId === 'google.com';
     
     if (isGoogleUser) {
@@ -53,12 +40,16 @@ const RegistroPage = () => {
   }, [user, needsRegistration, navigate]);
 
   const validateForm = () => {
+    
     if (!formData.usuario || !formData.fechaNacimiento) {
       return false;
     }
 
     if (!isGoogleUser) {
-      if (formData.password !== formData.confirmPassword || formData.password.length < 6) {
+    console.log(password !== confirmPassword);
+    console.log(password.length  <= 6);
+
+      if (password !== confirmPassword || password.length  < 6) {
         return false;
       }
     }
@@ -71,6 +62,8 @@ const RegistroPage = () => {
     
     if (!validateForm()) {
       // Aquí podrías mostrar un mensaje de error
+      console.log('Error en el formulario');
+      
       return;
     }
 
@@ -88,7 +81,18 @@ const RegistroPage = () => {
       };
 
       // Completa el registro del usuario
-      await completeRegistration(userData);
+      console.log(userData.email, password);
+      
+      if(isGoogleUser){
+        console.log('Google');
+        
+        await completeRegistration(userData)
+      }else{
+        console.log('Email');
+
+        await registerWithEmail(userData.email, password, userData);
+
+      }
 
       // Redirige a la página de intereses
       navigate('/intereses');
@@ -209,7 +213,8 @@ const RegistroPage = () => {
                     id="email"
                     type="email"
                     value={formData.email}
-                    disabled
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    disabled={isGoogleUser}
                     className="w-full"
                   />
                 </div>
@@ -225,7 +230,7 @@ const RegistroPage = () => {
                           id="password"
                           type={showPassword ? "text" : "password"}
                           value={formData.password}
-                          onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                          onChange={(e) => setPassword(e.target.value)}
                           required
                           className="w-full pr-10"
                         />
@@ -250,7 +255,7 @@ const RegistroPage = () => {
                         id="confirmPassword"
                         type={showPassword ? "text" : "password"}
                         value={formData.confirmPassword}
-                        onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        onChange={(e) => setconfirmPassword(e.target.value)}
                         required
                         className="w-full"
                       />

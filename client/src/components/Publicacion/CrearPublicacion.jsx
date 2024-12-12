@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { createPost } from '../../config/Publicaciones/Publicacion';
 import { uploadToCloudinary } from '../../services/cloudinary';
+
 import { getAuth } from 'firebase/auth';
 import { useAuth } from '../../context/AuthContext';
 
@@ -66,13 +67,16 @@ export const CrearPublicacion = ({ onPostCreated }) => {
   const { user } = useAuth();
   const MAX_CHARACTERS = 280;
 
-  useEffect(() => {
+  useEffect(()  => {
     setCharacterCount(contenido.length);
     
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
+    
+    
+    
   }, [contenido]);
 
   const handleFileSelect = (e) => {
@@ -101,7 +105,8 @@ export const CrearPublicacion = ({ onPostCreated }) => {
       fileInputRef.current.value = '';
     }
   };
-
+  
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
