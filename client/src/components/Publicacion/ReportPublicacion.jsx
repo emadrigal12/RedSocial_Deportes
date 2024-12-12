@@ -21,10 +21,10 @@ const ReportPublicacion = ({ postId, closeReport }) => {
 
       if (response.ok) {
         console.log("Reporte enviado exitosamente");
-        setIsReported(true); // Set success state to true
+        setIsReported(true); 
         setTimeout(() => {
-          closeReport(); // Close the report form after a delay
-        }, 3000); // 3 seconds to show the success popup
+          closeReport();
+        }, 3000); 
       } else {
         alert("Error al enviar el reporte.");
       }
@@ -36,7 +36,6 @@ const ReportPublicacion = ({ postId, closeReport }) => {
 
   return (
     <div className="relative">
-      {/* Success popup */}
       {isReported && (
         <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-2">
           <span className="text-xl">✔️</span>
@@ -44,7 +43,6 @@ const ReportPublicacion = ({ postId, closeReport }) => {
         </div>
       )}
 
-      {/* Report Form */}
       {!isReported && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-100 p-6 rounded-lg shadow-lg text-center z-50">
           <h3 className="text-sm font-semibold mb-4">Reportar Publicación</h3>

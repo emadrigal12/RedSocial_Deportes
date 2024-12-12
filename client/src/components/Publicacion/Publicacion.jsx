@@ -12,8 +12,8 @@ export const Publicacion = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
-  const [reportSent, setReportSent] = useState(false); // Estado para verificar si el reporte fue enviado
-  const [interactionsDisabled, setInteractionsDisabled] = useState(false); // Para desactivar botones cuando se envía el reporte
+  const [reportSent, setReportSent] = useState(false); 
+  const [interactionsDisabled, setInteractionsDisabled] = useState(false); 
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -49,15 +49,14 @@ export const Publicacion = ({ post }) => {
 
   const handleReportPost = (postId) => {
     console.log("Abriendo formulario para reportar:", postId);
-    setReportOpen(true); // Abre el formulario de reporte
+    setReportOpen(true); 
   };
 
   const handleReportSubmit = () => {
-    // Simulando el envío del reporte
     console.log("Reporte enviado");
-    setReportSent(true); // Marca que el reporte ha sido enviado
-    setInteractionsDisabled(true); // Desactiva las interacciones (botones)
-    setReportOpen(false); // Cierra el formulario de reporte
+    setReportSent(true); 
+    setInteractionsDisabled(true);
+    setReportOpen(false);
   };
 
   return (
@@ -81,7 +80,7 @@ export const Publicacion = ({ post }) => {
                   className="bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
                   size="icon"
                   onClick={handleMenuToggle}
-                  disabled={interactionsDisabled} // Desactiva el botón si se ha enviado el reporte
+                  disabled={interactionsDisabled} 
                 >
                   <MoreVertical className="h-5 w-5" />
                 </Button>
@@ -92,7 +91,7 @@ export const Publicacion = ({ post }) => {
                         <button
                           onClick={() => handleReportPost(post.id)}
                           className="w-full text-left px-4 py-2 text-gray-700 hover:text-orange-500"
-                          disabled={interactionsDisabled} // Desactiva el botón si se ha enviado el reporte
+                          disabled={interactionsDisabled} 
                         >
                           Reportar Publicación
                         </button>
@@ -131,7 +130,7 @@ export const Publicacion = ({ post }) => {
                     : 'bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white'
                 }`}
                 onClick={handleLike}
-                disabled={interactionsDisabled} // Desactiva el botón si se ha enviado el reporte
+                disabled={interactionsDisabled} 
               >
                 <ThumbsUp className="h-5 w-5" />
                 <span>Me gusta ({post.likes})</span>
@@ -139,7 +138,7 @@ export const Publicacion = ({ post }) => {
 
               <Button
                 className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
-                disabled={interactionsDisabled} // Desactiva el botón si se ha enviado el reporte
+                disabled={interactionsDisabled}
               >
                 <MessageCircle className="h-5 w-5" />
                 <span>Comentar ({post.comments})</span>
@@ -147,7 +146,7 @@ export const Publicacion = ({ post }) => {
 
               <Button
                 className="flex items-center space-x-2 bg-white text-orange-500 border border-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300"
-                disabled={interactionsDisabled} // Desactiva el botón si se ha enviado el reporte
+                disabled={interactionsDisabled} 
               >
                 <Share2 className="h-5 w-5" />
                 <span>Compartir</span>
@@ -161,11 +160,10 @@ export const Publicacion = ({ post }) => {
           <ReportPublicacion
             postId={post.id}
             closeReport={() => setReportOpen(false)} 
-            onSubmit={handleReportSubmit} // Maneja el envío del reporte
+            onSubmit={handleReportSubmit} 
           />
         )}
 
-        {/* Mostrar mensaje de éxito si el reporte fue enviado */}
         {reportSent && (
           <div className="mt-4 text-green-500 font-semibold">
             ¡Gracias por reportar! Tu reporte ha sido enviado correctamente.
