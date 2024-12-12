@@ -39,7 +39,7 @@ const ReportPublicacion = ({ postId, closeReport }) => {
       {isReported && (
         <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-2">
           <span className="text-xl">✔️</span>
-          <span className="text-white">¡Reporte enviado exitosamente!</span>
+          <span className="text-white">Reporte enviado exitosamente</span>
         </div>
       )}
 
