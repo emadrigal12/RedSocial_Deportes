@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import BotonGoogle from '../../components/Login/BotonGoogle';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from "@/hooks/use-toast"
 
   const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
   });
   const navigate = useNavigate();
   const { loginWithEmail } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +37,13 @@ import { useAuth } from '../../context/AuthContext';
         navigate('/home');
       }
     } catch (error) {
-      console.error('Error de inicio de sesión:', error);
+      console.error( error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Usuario o contraseña no válidos`
+      });
+      
     } finally {
       setLoading(false);
     }
