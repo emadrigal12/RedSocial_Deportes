@@ -1,7 +1,7 @@
 import React from 'react';
-import { createBrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext'; // Asegúrate de que la ruta sea correcta
-import { router } from './routes/Index'; // Asegúrate de que la ruta sea correcta
+import { Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { router } from './routes/Index'; 
 import Home from './pages/Home';
 import LoginPage from './pages/Login/LoginPage';
 import Intereses from './pages/Intereses/Intereses';
@@ -11,6 +11,7 @@ import LayoutPrincipal from './layout/LayoutPrincipal';
 import Comunidad from './pages/Comunidad/Comunidad';
 import Error404 from './pages/Error404';
 import ComunidadDetalle from './pages/Comunidad/ComunidadDetalle';
+import PanelAdministrativo from './pages/PanelAdmin/PanelAdministrativo';
 import { Toaster } from "@/components/ui/toaster"
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route exact path="/intereses" element={<Intereses/>}/>
           <Route exact path="/comunidades" element={<Comunidad/>}/>
           <Route path="/comunidad/:id" element={<ComunidadDetalle />} />
+          <Route path="/panelAdmin" element={<PanelAdministrativo />} />
 
           <Route path="/home" element={<LayoutPrincipal />}>
             <Route index element={<Home />} /> 
