@@ -59,7 +59,7 @@ export const Sidebar = () => {
     : 'US';
 
   return (
-    <div className="hidden md:block w-72">
+    <div className="hidden md:block w-80"> {/* Ancho del sidebar */}
       <Card className="sticky top-24 bg-white shadow-sm">
         <CardContent className="p-6">
           <div className="flex flex-col items-center">
@@ -99,6 +99,38 @@ export const Sidebar = () => {
                   {postCount}
                 </span>
               </div>
+
+              {followers.length > 0 ? (
+                <ul className="space-y-3">
+                  {followers.map((follower) => (
+                    <li
+                      key={follower.id}
+                      className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage
+                            src={follower.photoURL || "/api/placeholder/48/48"}
+                            alt={follower.nombre}
+                          />
+                          <AvatarFallback className="bg-orange-200 text-orange-700">
+                            {follower.nombre?.charAt(0).toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <p className="font-medium text-gray-900">{follower.nombre}</p>
+                      </div>
+                      <button
+                        onClick={() => onUnfollow(follower)} // Lógica para dejar de seguir
+                        className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded-full hover:bg-red-600 focus:outline-none"
+                      >
+                        Dejar de seguir
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">No tienes seguidores aún.</p>
+              )}
             </div>
           </div>
         </CardContent>
