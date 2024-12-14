@@ -78,6 +78,8 @@ export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seg
   };
 
   const handleFollow = (user) => {
+    console.log(user, onFollow);
+    
     if (onFollow) {
       onFollow(user); // Llama a la función para actualizar seguidores en LayoutPrincipal
     }
@@ -102,11 +104,11 @@ export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seg
           </h1>
 
           {/* Barra de búsqueda */}
-          <form onSubmit={handleSearch} className="flex-1 flex justify-center mx-4 relative">
+          <form onSubmit={handleSearch} className=" flex-1 flex justify-center mx-4 relative">
             <div className="relative w-1/2">
               <input
                 type="text"
-                className="w-full px-4 py-2 text-sm rounded-full shadow focus:outline-none focus:ring-2 focus:ring-orange-300"
+                className="bg-white w-full px-4 py-2 text-sm rounded-full shadow focus:outline-none focus:ring-2 focus:ring-orange-300"
                 placeholder="Buscar..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

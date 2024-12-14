@@ -37,7 +37,7 @@ const LayoutPrincipal = () => {
           <div className="grid grid-cols-12 gap-4 lg:gap-6">
             <div className="col-span-12 lg:col-span-3 xl:col-span-2">
               <div className="lg:sticky lg:top-20">
-                <Sidebar followers={followers} onUnfollow={handleUnfollow} />
+                <Sidebar />
               </div>
             </div>
 
