@@ -9,7 +9,7 @@ export const PanelNotificacion = () => {
   ]);
 
   useEffect(() => {
-    // Aquí agregaria websocket
+    // Aquí agregaria websockcon todo
   }, []);
 
   const markAsRead = (id) => {
