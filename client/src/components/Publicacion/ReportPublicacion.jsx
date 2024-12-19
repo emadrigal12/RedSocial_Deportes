@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { useToast } from "@/hooks/use-toast"
 
 const ReportPublicacion = ({ postId, closeReport }) => {
   const [isReported, setIsReported] = useState(false);
-
-  const handleReport = async () => {
+  const { toast } = useToast();
+  const sendReport = async () => {
     try {
       const response = await fetch(
         "https://prod-11.westus.logic.azure.com:443/workflows/74f363c8f6274c2a994a1eca4d13f60f/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DjONCAfwp_JKQCkOfvbQfBxJGYRMuawsTO9oUQHzl4s",
@@ -26,11 +27,31 @@ const ReportPublicacion = ({ postId, closeReport }) => {
           closeReport();
         }, 3000); 
       } else {
-        alert("Error al enviar el reporte.");
+        console.log("Error al enviar el reporte.");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Hubo un problema al reportar la publicación.");
+    }
+  };
+
+  const handleReport = async (postId) => {
+    const userId = auth.currentUser.uid;
+    const reason = "Contenido inapropiado";
+    
+    const result = await reportPost(postId, userId, reason);
+    if (result.success) {
+      await sendReport();
+      toast({
+        variant: "outline",
+        title: "Éxito",
+        description: `Publicación reportada con éxito`
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Error al reportar publicación`
+      });
     }
   };
 

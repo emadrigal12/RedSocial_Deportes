@@ -15,7 +15,8 @@ import {
     getDoc,
     deleteDoc ,
     increment ,
-    FieldValue
+    FieldValue,
+    where
   } from 'firebase/firestore';
 
   import { onFindById } from '../../config/Login/Login';
@@ -213,6 +214,47 @@ const incrementLComments = async (incrementBy) => {
   } catch (error) {
     console.error("Error al incrementar los comentarios:", error);
     throw error;
+  }
+};
+
+
+
+export const reportPost = async (postId, userId, reason) => {
+  try {
+    const reportQuery = query(
+      collection(db, 'Reportes'),
+      where('tipo', '==', 'publicacion'),
+      where('idReferencia', '==', postId)
+    );
+    
+    const reportSnapshot = await getDocs(reportQuery);
+    
+    if (reportSnapshot.empty) {
+      await addDoc(collection(db, 'Reportes'), {
+        tipo: 'publicacion',
+        idReferencia: postId,
+        reportCount: 1,
+        reportReasons: [reason],
+        reportedBy: [userId],
+        createdAt: new Date().toISOString()
+      });
+    } else {
+      const reportDoc = reportSnapshot.docs[0];
+      const currentData = reportDoc.data();
+      
+      if (!currentData.reportedBy.includes(userId)) {
+        await updateDoc(reportDoc.ref, {
+          reportCount: currentData.reportCount + 1,
+          reportReasons: [...currentData.reportReasons, reason],
+          reportedBy: [...currentData.reportedBy, userId]
+        });
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error reporting post:', error);
+    return { success: false, error };
   }
 };
 
