@@ -18,7 +18,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase/config';
 import { useNavigate, useLocation  } from 'react-router-dom';
-
+import { useToast } from "@/hooks/use-toast"
 const AuthContext = createContext({});
 
 export const useAuth = () => useContext(AuthContext);
@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
   const [newUser, setnewUser] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -38,17 +39,14 @@ export const AuthProvider = ({ children }) => {
       console.log(pathSegments, lastSegment);
       
       if (user && lastSegment !== 'registro') {
-        // Verificar si el usuario existe en la colección 'Usuarios'
         const userDoc = await getDoc(doc(db, 'Usuarios', user.uid));
         if (!userDoc.exists()) {
-          setNeedsRegistration(true); // Usuario necesita registro
+          setNeedsRegistration(true); 
         }
         setUser(user); 
       } else if (!user && (lastSegment !== 'registro' || lastSegment !== 'recuperar') ) {
-        // Si no hay usuario y la ruta no es 'registro', redirigir al login
         navigate('/');
       } else {
-        // Rutas públicas (como 'registro') no requieren redirección
         setUser(null);
         setNeedsRegistration(true);
         setnewUser(true)
@@ -86,6 +84,20 @@ export const AuthProvider = ({ children }) => {
         return { user: result.user, needsInterests: true };
       }
 
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        if (userData.estado === 'banned') {
+          await auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Atención",
+            description: `Tu cuenta ha sido desactivada por violar los términos de servicio.`
+          });
+          return
+        }
+      }
+
       return { user: result.user, isNewUser: false };
     } catch (error) {
       console.error('Error en login con Google:', error);
@@ -106,6 +118,19 @@ export const AuthProvider = ({ children }) => {
       const interesesDoc = await getDoc(doc(db, 'Intereses', result.user.uid));
       if (!interesesDoc.exists()) {
         return { user: result.user, needsInterests: true };
+      }
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        if (userData.estado === 'banned') {
+          await auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Atención",
+            description: `Tu cuenta ha sido desactivada por violar los términos de servicio.`
+          });
+          return
+        }
       }
 
       return { user: result.user, isNewUser: false };

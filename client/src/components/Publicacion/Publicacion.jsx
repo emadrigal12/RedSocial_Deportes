@@ -43,7 +43,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import ReportPublicacion from './ReportPublicacion';
+import ReportPublicacion  from './ReportPublicacion';
+import { reportPost } from '../../config/Publicaciones/Publicacion';
 
 
 export const Publicacion = ({ post, onPostUpdate }) => {
@@ -289,6 +290,26 @@ export const Publicacion = ({ post, onPostUpdate }) => {
     console.log("Abriendo formulario para reportar:", postId);
     setReportOpen(true); 
   };
+  const handleReport = async (postId) => {
+    const userId = user.uid;
+    const reason = "Contenido inapropiado"; // Esto podría venir de un formulario
+    
+    const result = await reportPost(postId, userId, reason);
+    if (result.success) {
+      // await sendReport();
+      toast({
+        variant: "outline",
+        title: "Éxito",
+        description: `Publicación reportada con éxito`
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Error al reportar publicación`
+      });
+    }
+  };
 
   const handleReportSubmit = () => {
     console.log("Reporte enviado");
@@ -369,10 +390,35 @@ export const Publicacion = ({ post, onPostUpdate }) => {
                 </div>
 
                )}
-              <DropdownMenuItem onClick={() => handleReportPost(post.id)}>
-                  <Flag className="h-5 w-5 mr-2" />
-                  Reportar
-                </DropdownMenuItem>
+               
+               <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                    <Flag className="h-5 w-5 mr-2" />
+                    Reportar Publicación
+                  </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>¿Reportar?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        ¿Desea reportar está publicación?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-500 hover:bg-red-600"
+                        onClick={() => handleReport(post.id)}
+                      >
+                        Reportar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                
               </DropdownMenuContent>
             </DropdownMenu>
         </div>

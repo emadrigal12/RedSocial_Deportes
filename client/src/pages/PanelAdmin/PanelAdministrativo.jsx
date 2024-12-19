@@ -10,14 +10,23 @@ import {
   AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
 import { Ban, Trash2, X } from 'lucide-react';
-import { auth , db } from '../../lib/firebase/config'
-import { collection, doc, deleteDoc, addDoc, query, where, getDocs } from 'firebase/firestore';
-
-
+import { auth, db } from '../../lib/firebase/config';
+import { 
+  collection, 
+  doc, 
+  deleteDoc, 
+  query, 
+  where, 
+  getDocs,
+  updateDoc,
+  getDoc 
+} from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast"
 
 const AdminDashboard = () => {
   const [reportedUsers, setReportedUsers] = useState([]);
   const [reportedPosts, setReportedPosts] = useState([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchReportedData = async () => {
@@ -47,45 +56,92 @@ const AdminDashboard = () => {
 
   const handleBanUser = async (userId) => {
     try {
-      const userReportQuery = query(collection(db, 'Reportes'), where('tipo', '==', 'usuario'), where('idReferencia', '==', userId));
-      const userReportSnapshot = await getDocs(userReportQuery);
-      await Promise.all(userReportSnapshot.docs.map(doc => deleteDoc(doc.ref)));
-
-      setReportedUsers(reportedUsers.filter(user => user.id !== userId));
+      const reportRef = doc(db, 'Reportes', userId);
+      const reportDoc = await getDoc(reportRef);
+      
+      if (reportDoc.exists()) {
+        const { idReferencia } = reportDoc.data();
+        
+        const userRef = doc(db, 'Usuarios', idReferencia);
+        await updateDoc(userRef, {
+          estado: 'banned',
+          banDate: new Date().toISOString()
+        });
+  
+        const userReportQuery = query(
+          collection(db, 'Reportes'), 
+          where('tipo', '==', 'usuario'), 
+          where('idReferencia', '==', idReferencia)
+        );
+        const userReportSnapshot = await getDocs(userReportQuery);
+        await Promise.all(userReportSnapshot.docs.map(doc => deleteDoc(doc.ref)));
+  
+        setReportedUsers(reportedUsers.filter(user => user.id !== userId));
+  
+        toast({
+          variant: "outline",
+          title: "Éxito",
+          description: "Usuario baneado con éxito"
+        });
+      }
     } catch (error) {
       console.error('Error banning user:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Error al banear usuario"
+      });
+    }
+  };
+
+  const handleDismissReport = async (type, reportId) => {
+    try {
+      const reportRef = doc(db, 'Reportes', reportId);
+      await deleteDoc(reportRef);
+  
+      if (type === 'usuario') {
+        setReportedUsers(reportedUsers.filter(user => user.id !== reportId));
+      } else if (type === 'publicacion') {
+        setReportedPosts(reportedPosts.filter(post => post.id !== reportId));
+      }
+  
+      console.log(`Reporte de ${type} descartado exitosamente`);
+    } catch (error) {
+      console.error(`Error al descartar reporte de ${type}:`, error);
     }
   };
 
   const handleDeletePost = async (postId) => {
     try {
-      // Delete the post's report from the Reportes collection
-      const postReportQuery = query(collection(db, 'Reportes'), where('tipo', '==', 'publicacion'), where('idReferencia', '==', postId));
-      const postReportSnapshot = await getDocs(postReportQuery);
-      await Promise.all(postReportSnapshot.docs.map(doc => deleteDoc(doc.ref)));
-
-      // Remove the post from the reportedPosts state
-      setReportedPosts(reportedPosts.filter(post => post.id !== postId));
-    } catch (error) {
-      console.error('Error deleting post:', error);
-    }
-  };
-
-  const handleDismissReport = async (type, id) => {
-    try {
-      // Delete the report from the Reportes collection
-      const reportQuery = query(collection(db, 'Reportes'), where('tipo', '==', type), where('idReferencia', '==', id));
-      const reportSnapshot = await getDocs(reportQuery);
-      await Promise.all(reportSnapshot.docs.map(doc => deleteDoc(doc.ref)));
-
-      // Remove the item from the corresponding state
-      if (type === 'usuario') {
-        setReportedUsers(reportedUsers.filter(user => user.id !== id));
-      } else {
-        setReportedPosts(reportedPosts.filter(post => post.id !== id));
+      // 1. Primero obtenemos el documento del reporte para acceder al idReferencia
+      const reportRef = doc(db, 'Reportes', postId);
+      const reportDoc = await getDoc(reportRef);
+      
+      if (reportDoc.exists()) {
+        const { idReferencia } = reportDoc.data();
+        
+        // 2. Eliminar la publicación usando el idReferencia
+        const postRef = doc(db, 'Publicaciones', idReferencia);
+        await deleteDoc(postRef);
+  
+        // 3. Eliminar el reporte
+        await deleteDoc(reportRef);
+  
+        // 4. Actualizar el estado local
+        setReportedPosts(reportedPosts.filter(post => post.id !== postId));
+        toast({
+          variant: "outline",
+          title: "Éxito",
+          description: `Publicación eliminada con éxito`
+        });
       }
     } catch (error) {
-      console.error(`Error dismissing ${type} report:`, error);
+      console.error('Error deleting post:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Error al eliminar publicación`
+      });
     }
   };
   return (

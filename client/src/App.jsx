@@ -13,6 +13,7 @@ import Error404 from './pages/Error404';
 import ComunidadDetalle from './pages/Comunidad/ComunidadDetalle';
 import PanelAdministrativo from './pages/PanelAdmin/PanelAdministrativo';
 import { Toaster } from "@/components/ui/toaster"
+import UserProfile from './pages/Usuario/UserProfile';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
           <Route exact path="/comunidades" element={<Comunidad/>}/>
           <Route path="/comunidad/:id" element={<ComunidadDetalle />} />
           <Route path="/panelAdmin" element={<PanelAdministrativo />} />
-
+          <Route path="/perfil/usuario/:userId" element={<UserProfile />} />
           <Route path="/home" element={<LayoutPrincipal />}>
             <Route index element={<Home />} /> 
           </Route>
