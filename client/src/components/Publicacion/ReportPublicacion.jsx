@@ -22,10 +22,6 @@ const ReportPublicacion = ({ postId, closeReport }) => {
 
       if (response.ok) {
         console.log("Reporte enviado exitosamente");
-        setIsReported(true); 
-        setTimeout(() => {
-          closeReport();
-        }, 3000); 
       } else {
         console.log("Error al enviar el reporte.");
       }

@@ -113,21 +113,14 @@ const AdminDashboard = () => {
 
   const handleDeletePost = async (postId) => {
     try {
-      // 1. Primero obtenemos el documento del reporte para acceder al idReferencia
+      
       const reportRef = doc(db, 'Reportes', postId);
       const reportDoc = await getDoc(reportRef);
-      
       if (reportDoc.exists()) {
         const { idReferencia } = reportDoc.data();
-        
-        // 2. Eliminar la publicación usando el idReferencia
         const postRef = doc(db, 'Publicaciones', idReferencia);
         await deleteDoc(postRef);
-  
-        // 3. Eliminar el reporte
         await deleteDoc(reportRef);
-  
-        // 4. Actualizar el estado local
         setReportedPosts(reportedPosts.filter(post => post.id !== postId));
         toast({
           variant: "outline",
