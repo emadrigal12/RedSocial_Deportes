@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MessageCircle, MoreVertical, Share2, ThumbsUp, Edit, Trash, Flag } from 'lucide-react';
+import { MessageCircle, MoreVertical, Share2, ThumbsUp, Edit, Trash, Flag, Trophy } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
@@ -534,8 +534,8 @@ export const Publicacion = ({ post, onPostUpdate }) => {
             } transition-all duration-300 px-4 py-2 rounded-md`}
             onClick={handleLike}
           >
-            <ThumbsUp className="h-5 w-5" />
-            <span className="md:block hidden">Me gusta ({currentPost.likes || 0})</span>
+            <Trophy className="h-5 w-5" />
+            <span className="md:block hidden">Felicitar ({currentPost.likes || 0})</span>
           </Button>
 
           <Button
