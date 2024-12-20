@@ -19,6 +19,7 @@ import { db } from "../../lib/firebase/config.js";
 import { NotificacionesLista } from '../Notificacion/NotificacionLista';
 import { NotificacionesPanel } from '../Notificacion/NotificacionPanel.jsx';
 import { subscribeToUserNotifications, markAllNotificationsAsRead, createNotification } from '../../config/Notificaciones/Notificaciones.js';
+import { DesactivarCuenta } from '../../components/Perfil/DesactivarCuenta.jsx';
 
 
 export const Navbar = ({ onFollow }) => { 
@@ -26,10 +27,12 @@ export const Navbar = ({ onFollow }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]); 
-  const { user, logout } = useAuth();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { deactivateAccount, user, logout } = useAuth();
+  const [isAccountDeactivated, setIsAccountDeactivated] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (user?.uid) {
@@ -47,6 +50,36 @@ export const Navbar = ({ onFollow }) => {
       await markAllNotificationsAsRead(user.uid);
     }
   };
+
+  const handleMenu = (e)=>{
+    console.log('cd');
+    
+    e.preventDefault();
+    setIsDropdownOpen(!isDropdownOpen);
+  }
+
+  const handleDeactivateAccount = async () => {
+    try {
+      await deactivateAccount();
+      setIsAccountDeactivated(true);
+      setIsDropdownOpen(false);
+      toast({
+        variant: 'success',
+        title: 'Cuenta desactivada',
+        description: 'Tu cuenta ha sido desactivada exitosamente.',
+      });
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Error al desactivar la cuenta:', error);
+      setIsDropdownOpen(false);
+      toast({
+        variant: 'destructive',
+        title: 'Error al desactivar la cuenta',
+        description: 'Hubo un problema al desactivar tu cuenta. Por favor, intenta de nuevo.',
+      });
+    }
+  };
+
 
   const handleLogout = async () => {
     try {
@@ -234,10 +267,22 @@ export const Navbar = ({ onFollow }) => {
                   <User className="mr-2 h-4 w-4"  />
                   <span>Perfil</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Configuración</span>
-                </DropdownMenuItem>
+                {isAccountDeactivated ? (
+                    <p>Tu cuenta ha sido desactivada. ¡Lamentamos verte partir!</p>
+                  ) : (
+                    <>
+                      <DropdownMenuItem
+                        className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50"
+                        onClick={(e) => handleMenu(e)}
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Configuración</span>
+                      </DropdownMenuItem>
+                      {isDropdownOpen && (
+                        <DesactivarCuenta onDeactivate={handleDeactivateAccount} />
+                      )}
+                    </>
+                )} 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50"
@@ -330,6 +375,8 @@ export const Navbar = ({ onFollow }) => {
       {isEditProfileOpen && (
         <EditarPerfil user={user} onClose={handleCloseEditProfile}  />
       )}
+
+      
       <NotificacionesPanel
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
