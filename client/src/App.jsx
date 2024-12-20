@@ -14,10 +14,15 @@ import ComunidadDetalle from './pages/Comunidad/ComunidadDetalle';
 import PanelAdministrativo from './pages/PanelAdmin/PanelAdministrativo';
 import { Toaster } from "@/components/ui/toaster"
 import UserProfile from './pages/Usuario/UserProfile';
+import FollowersAndFollowing from '../src/FollowersAndFollowing';
+import { FollowProvider } from './context/FollowContext';
+
+
 
 function App() {
   return (
     <AuthProvider>
+      <FollowProvider>
       <Toaster />
       <Routes>
           <Route exact path="/" element={<LoginPage/>}/>
@@ -27,12 +32,14 @@ function App() {
           <Route exact path="/comunidades" element={<Comunidad/>}/>
           <Route path="/comunidad/:id" element={<ComunidadDetalle />} />
           <Route path="/panelAdmin" element={<PanelAdministrativo />} />
+          <Route path="/followers-and-following" element={<FollowersAndFollowing />} />
           <Route path="/perfil/usuario/:userId" element={<UserProfile />} />
           <Route path="/home" element={<LayoutPrincipal />}>
             <Route index element={<Home />} /> 
           </Route>
           <Route path="*" element={<Error404/>}/>
         </Routes>
+        </FollowProvider>
     </AuthProvider>
   );
 }

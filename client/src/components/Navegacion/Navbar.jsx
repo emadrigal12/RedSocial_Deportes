@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { Bell, Home, Users, Menu, X, LogOut, User, Settings, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { FollowProvider } from '@/context/FollowContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import EditarPerfil from '../Perfil/EditarPerfil';
+import { useFollow } from '../../context/FollowContext';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +36,7 @@ export const Navbar = ({ onFollow }) => {
   const { deactivateAccount, user, logout } = useAuth();
   const [isAccountDeactivated, setIsAccountDeactivated] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { followUser, following } = useFollow(); // Usa useFollow
 
   useEffect(() => {
     if (user?.uid) {
@@ -133,28 +137,13 @@ export const Navbar = ({ onFollow }) => {
     }
   };
 
-  const handleFollow = async (userToFollow) => {
-    try {
-  
-      await createNotification({
-        type: NOTIFICATION_TYPES.FOLLOW,
-        senderId: user.uid,
-        senderName: user.displayName,
-        senderAvatar: user.photoURL,
-        recipientId: userToFollow.id
-      });
-  
-      if (onFollow) {
-        onFollow(userToFollow);
-      }
-    } catch (error) {
-      console.error('Error al seguir usuario:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo seguir al usuario. Intenta nuevamente."
-      });
-    }
+  const handleFollow = (userToFollow) => {
+    followUser(userToFollow);
+    toast({
+      title: "Éxito",
+      description: `Ahora sigues a ${userToFollow.nombre}.`,
+      variant: "success",
+    });
   };
   
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
