@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { auth, db } from '../../lib/firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export const Sidebar = () => {
   const [userData, setUserData] = useState(null);
   const [postCount, setPostCount] = useState(0);
-  const {user} = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -83,14 +84,18 @@ export const Sidebar = () => {
             </div>
 
             <div className="mt-6 w-full space-y-3">
-              <div 
+              {/* Botón Amigos */}
+              <div
                 className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => navigate('/followers-and-following')}
               >
                 <span className="text-gray-600 text-sm">Amigos</span>
                 <span className="font-semibold text-gray-900">
                   {userData.amigos?.length || 0}
                 </span>
               </div>
+
+              {/* Sección Publicaciones */}
               <div 
                 className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
               >
