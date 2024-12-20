@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { NOTIFICATION_TYPES } from '../../config/Notificaciones/Notificaciones';
 
-export const NotificacionItem = ({ notification }) => {
+export const NotificacionItem = ({ notification, onClick }) => {
   const getNotificationMessage = () => {
     switch (notification.type) {
       case NOTIFICATION_TYPES.LIKE:
@@ -21,9 +21,12 @@ export const NotificacionItem = ({ notification }) => {
   };
 
   return (
-    <div className={`p-4 hover:bg-gray-50 cursor-pointer flex items-center space-x-4 ${
-      !notification.read ? 'bg-orange-50' : ''
-    }`}>
+    <div
+      onClick={onClick}
+      className={`p-4 hover:bg-gray-50 cursor-pointer flex items-center space-x-4 ${
+        !notification.read ? 'bg-orange-50' : ''
+      }`}
+    >
       <Avatar className="h-10 w-10">
         <AvatarImage src={notification.senderAvatar} />
         <AvatarFallback>{notification.senderName[0]}</AvatarFallback>
