@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Home, Users, Menu, X, LogOut, User, Settings, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -14,16 +14,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-// Navbar.jsx
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from "@/lib/firebase/config.js";
+import { db } from "../../lib/firebase/config.js";
+import { NotificacionesLista } from '../Notificacion/NotificacionLista';
+import { NotificacionesPanel } from '../Notificacion/NotificacionPanel.jsx';
+import { subscribeToUserNotifications, markAllNotificationsAsRead, createNotification } from '../../config/Notificaciones/Notificaciones.js';
 
-export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seguidores
+
+export const Navbar = ({ onFollow }) => { 
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]); 
   const { user, logout } = useAuth();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.uid) {
+      const unsubscribe = subscribeToUserNotifications(user.uid, (newNotifications) => {
+        setNotifications(newNotifications);
+        setUnreadCount(newNotifications.filter(n => !n.read).length);
+      });
+  
+      return () => unsubscribe();
+    }
+  }, [user?.uid]);
+
+  const handleMarkAllRead = async () => {
+    if (user?.uid) {
+      await markAllNotificationsAsRead(user.uid);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -77,11 +100,27 @@ export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seg
     }
   };
 
-  const handleFollow = (user) => {
-    console.log(user, onFollow);
-    
-    if (onFollow) {
-      onFollow(user); // Llama a la función para actualizar seguidores en LayoutPrincipal
+  const handleFollow = async (userToFollow) => {
+    try {
+  
+      await createNotification({
+        type: NOTIFICATION_TYPES.FOLLOW,
+        senderId: user.uid,
+        senderName: user.displayName,
+        senderAvatar: user.photoURL,
+        recipientId: userToFollow.id
+      });
+  
+      if (onFollow) {
+        onFollow(userToFollow);
+      }
+    } catch (error) {
+      console.error('Error al seguir usuario:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo seguir al usuario. Intenta nuevamente."
+      });
     }
   };
   
@@ -165,9 +204,15 @@ export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seg
             </Button>
             <Button
               size="icon"
-              className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200"
+              className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200 relative"
+              onClick={() => setNotificationsOpen(true)}
             >
               <Bell className="h-6 w-6" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Button>
 
             <DropdownMenu>
@@ -242,16 +287,17 @@ export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seg
                 <Users className="mr-2 h-6 w-6" />
                 Comunidades
               </Button>
-              <Button 
-                variant="ghost" 
-                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
-                onClick={() => {
-                  // Agregar la navegación a notificaciones si existe
-                  setIsMenuOpen(false);
-                }}
+              <Button
+                size="icon"
+                className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200 relative"
+                onClick={() => setNotificationsOpen(true)}
               >
-                <Bell className="mr-2 h-6 w-6" />
-                Notificaciones
+                <Bell className="h-6 w-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Button>
               <Button 
                 variant="ghost" 
@@ -275,14 +321,21 @@ export const Navbar = ({ onFollow }) => { // Recibe la función para manejar seg
                 <LogOut className="mr-2 h-6 w-6" />
                 Cerrar Sesión
               </Button>
+              
             </div>
           </div>
         )}
       </div>
-
+      
       {isEditProfileOpen && (
         <EditarPerfil user={user} onClose={handleCloseEditProfile}  />
       )}
+      <NotificacionesPanel
+        open={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkAllRead={handleMarkAllRead}
+      />
       </div>
     </nav>
   );

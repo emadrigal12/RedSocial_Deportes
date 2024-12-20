@@ -45,6 +45,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import ReportPublicacion  from './ReportPublicacion';
 import { reportPost } from '../../config/Publicaciones/Publicacion';
+import {  createNotification } from '../../config/Notificaciones/Notificaciones.js';
+import { NOTIFICATION_TYPES } from '../../config/Notificaciones/Notificaciones';
 
 
 export const Publicacion = ({ post, onPostUpdate }) => {
@@ -118,6 +120,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
     return format(date, "d 'de' MMMM 'a las' HH:mm", { locale: es });
   };
 
+  
   const handleLike = async () => {
     try {
       const postRef = doc(db, 'Publicaciones', post.id);
@@ -126,6 +129,18 @@ export const Publicacion = ({ post, onPostUpdate }) => {
         likedBy: isLiked ? arrayRemove(user.uid) : arrayUnion(user.uid),
         likes: increment(isLiked ? -1 : 1)
       });
+  
+      if (!isLiked && currentPost.userId !== user.uid) {
+        await createNotification({
+          type: NOTIFICATION_TYPES.LIKE,
+          senderId: user.uid,
+          senderName: user.displayName,
+          senderAvatar: user.photoURL,
+          recipientId: currentPost.userId,
+          postId: post.id,
+          postContent: currentPost.content?.substring(0, 50) 
+        });
+      }
       
       setIsLiked(!isLiked);
     } catch (error) {
@@ -150,12 +165,26 @@ export const Publicacion = ({ post, onPostUpdate }) => {
         userName: user.displayName,
         userAvatar: user.photoURL,
       });
-
+  
       const postRef = doc(db, 'Publicaciones', post.id);
       await updateDoc(postRef, {
         comments: increment(1)
       });
-
+  
+      // Crear notificación de comentario
+      if (currentPost.userId !== user.uid) {
+        await createNotification({
+          type: NOTIFICATION_TYPES.COMMENT,
+          senderId: user.uid,
+          senderName: user.displayName,
+          senderAvatar: user.photoURL,
+          recipientId: currentPost.userId,
+          postId: post.id,
+          postContent: currentPost.content?.substring(0, 50),
+          commentContent: newComment.substring(0, 50)
+        });
+      }
+  
       setNewComment('');
     } catch (error) {
       console.error('Error al comentar:', error);
@@ -166,7 +195,6 @@ export const Publicacion = ({ post, onPostUpdate }) => {
       });
     }
   };
-
   const handleDeleteComment = async (commentId) => {
     try {
       await deleteDoc(doc(db, 'Publicaciones', post.id, 'comments', commentId));
@@ -209,15 +237,27 @@ export const Publicacion = ({ post, onPostUpdate }) => {
           userName: currentPost.userName
         }
       };
-
+  
       const docRef = await addDoc(collection(db, 'Publicaciones'), newPost);
+  
+      if (currentPost.userId !== user.uid) {
+        await createNotification({
+          type: NOTIFICATION_TYPES.SHARE,
+          senderId: user.uid,
+          senderName: user.displayName,
+          senderAvatar: user.photoURL,
+          recipientId: currentPost.userId,
+          postId: post.id,
+          postContent: currentPost.content?.substring(0, 50)
+        });
+      }
+  
       if (onPostUpdate) onPostUpdate();
       toast({
         title: "¡Publicación compartida!",
         description: "Tu contenido ha sido compartido exitosamente."
       });
-
-      // Opcional: Desplazarse hasta la nueva publicación
+  
       const element = document.getElementById(docRef.id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
@@ -319,7 +359,7 @@ export const Publicacion = ({ post, onPostUpdate }) => {
 
   const handleReport = async (postId) => {
     const userId = user.uid;
-    const reason = "Contenido inapropiado"; // Esto podría venir de un formulario
+    const reason = "Contenido inapropiado"; 
     
     const result = await reportPost(postId, userId, reason);
     if (result.success) {
