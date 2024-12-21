@@ -3,8 +3,8 @@ import { useFollow } from './context/FollowContext'; // Importar el contexto de 
 import { Navbar } from './components/Navegacion/Navbar';
 
 const FollowersAndFollowing = () => {
-    const { following, followers, unfollowUser } = useFollow(); // Añadir `unfollowUser` al contexto
-    const [activeTab, setActiveTab] = useState('following'); // Estado para controlar la tab activa
+    const { following, followers, unfollowUser } = useFollow(); // Ahora incluye datos dinámicos
+    const [activeTab, setActiveTab] = useState('following');
   
     return (
       <div>
@@ -46,11 +46,11 @@ const FollowersAndFollowing = () => {
                         className="flex justify-between items-center border rounded-lg py-2 px-4 shadow-md"
                       >
                         <div>
-                          <p className="font-medium text-gray-800">{user.nombre}</p>
-                          <p className="text-sm text-gray-500">{user.email}</p>
+                          <p className="font-medium text-gray-800">{user.nombre || 'Usuario desconocido'}</p>
+                          <p className="text-sm text-gray-500">{user.email || 'Email no disponible'}</p>
                         </div>
                         <button
-                          onClick={() => unfollowUser(user)} // Llama a la función para eliminar
+                          onClick={() => unfollowUser(user.id)} // Llama a la función para eliminar
                           className="px-3 py-1 text-sm font-medium text-white bg-red-500 rounded-full hover:bg-red-600 focus:outline-none"
                         >
                           Eliminar
@@ -74,8 +74,8 @@ const FollowersAndFollowing = () => {
                         key={user.id}
                         className="border rounded-lg py-2 px-4 text-left shadow-md"
                       >
-                        <p className="font-medium text-gray-800">{user.nombre}</p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <p className="font-medium text-gray-800">{user.nombre || 'Usuario desconocido'}</p>
+                        <p className="text-sm text-gray-500">{user.email || 'Email no disponible'}</p>
                       </li>
                     ))}
                   </ul>
@@ -91,3 +91,4 @@ const FollowersAndFollowing = () => {
   };
   
   export default FollowersAndFollowing;
+  

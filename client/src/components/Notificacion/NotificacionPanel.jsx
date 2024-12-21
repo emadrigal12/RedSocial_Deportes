@@ -1,11 +1,16 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { NotificacionItem } from './NotificacionItem';
 import { Button } from "@/components/ui/button";
+import { doc, updateDoc } from 'firebase/firestore';
+import { NotificacionItem } from './NotificacionItem';
+
+import { db } from '../../lib/firebase/config'; // Ajusta la ruta según tu configuración
+
 
 export const NotificacionesPanel = ({ open, onClose, notifications, onMarkAllRead }) => {
   const panelRef = useRef();
 
+  // Manejo para cerrar el panel al hacer clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (panelRef.current && !panelRef.current.contains(event.target)) {
@@ -22,9 +27,27 @@ export const NotificacionesPanel = ({ open, onClose, notifications, onMarkAllRea
     };
   }, [open, onClose]);
 
+  // Si el panel no está abierto, no renderizar nada
   if (!open) return null;
 
+  // Calcular el número de notificaciones no leídas
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  // Función para marcar una notificación como leída
+  const markAllNotificationsAsRead = async () => {
+    try {
+      const unreadNotifications = notifications.filter((n) => !n.read);
+      await Promise.all(
+        unreadNotifications.map((notification) => {
+          const notificationRef = doc(db, 'Notificaciones', notification.id);
+          return updateDoc(notificationRef, { read: true });
+        })
+      );
+      onMarkAllRead(); // Llama al callback para actualizar la interfaz
+    } catch (error) {
+      console.error('Error al marcar notificaciones como leídas:', error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
@@ -35,6 +58,7 @@ export const NotificacionesPanel = ({ open, onClose, notifications, onMarkAllRea
           animation: open ? 'slideIn 0.3s ease-out' : 'slideOut 0.3s ease-in'
         }}
       >
+        {/* Encabezado del panel */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold">Notificaciones</h2>
           <div className="flex items-center space-x-4">
@@ -42,7 +66,7 @@ export const NotificacionesPanel = ({ open, onClose, notifications, onMarkAllRea
               <Button
                 variant="ghost"
                 className="text-sm text-orange-500"
-                onClick={onMarkAllRead}
+                onClick={markAllNotificationsAsRead} // Llama a la función para marcar como leídas
               >
                 Marcar todas como leídas
               </Button>
@@ -56,6 +80,7 @@ export const NotificacionesPanel = ({ open, onClose, notifications, onMarkAllRea
           </div>
         </div>
 
+        {/* Contenido del panel */}
         <div className="overflow-y-auto h-[calc(100%-4rem)]">
           {notifications.length > 0 ? (
             notifications.map((notification) => (
