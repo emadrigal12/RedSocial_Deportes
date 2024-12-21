@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { Bell, Home, Users, Menu, X, LogOut, User, Settings, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { FollowProvider } from '@/context/FollowContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import EditarPerfil from '../Perfil/EditarPerfil';
+import { useFollow } from '../../context/FollowContext';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +17,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { db } from "../../lib/firebase/config.js";
 import { NotificacionesLista } from '../Notificacion/NotificacionLista';
 import { NotificacionesPanel } from '../Notificacion/NotificacionPanel.jsx';
 import { subscribeToUserNotifications, markAllNotificationsAsRead, createNotification } from '../../config/Notificaciones/Notificaciones.js';
 import { DesactivarCuenta } from '../../components/Perfil/DesactivarCuenta.jsx';
-
 
 export const Navbar = ({ onFollow }) => { 
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ export const Navbar = ({ onFollow }) => {
   const { deactivateAccount, user, logout } = useAuth();
   const [isAccountDeactivated, setIsAccountDeactivated] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { followUser, following } = useFollow();
 
   useEffect(() => {
     if (user?.uid) {
@@ -40,7 +43,6 @@ export const Navbar = ({ onFollow }) => {
         setNotifications(newNotifications);
         setUnreadCount(newNotifications.filter(n => !n.read).length);
       });
-  
       return () => unsubscribe();
     }
   }, [user?.uid]);
@@ -51,12 +53,10 @@ export const Navbar = ({ onFollow }) => {
     }
   };
 
-  const handleMenu = (e)=>{
-    console.log('cd');
-    
+  const handleMenu = (e) => {
     e.preventDefault();
     setIsDropdownOpen(!isDropdownOpen);
-  }
+  };
 
   const handleDeactivateAccount = async () => {
     try {
@@ -79,7 +79,6 @@ export const Navbar = ({ onFollow }) => {
       });
     }
   };
-
 
   const handleLogout = async () => {
     try {
@@ -134,29 +133,42 @@ export const Navbar = ({ onFollow }) => {
   };
 
   const handleFollow = async (userToFollow) => {
-    try {
+    if (!userToFollow.id) {
+      toast({
+        title: 'Error',
+        description: 'No se puede enviar la solicitud. Usuario inválido.',
+        variant: 'destructive',
+      });
+      return;
+    }
   
+    try {
+      // Crear notificación de solicitud de amistad
       await createNotification({
-        type: NOTIFICATION_TYPES.FOLLOW,
-        senderId: user.uid,
-        senderName: user.displayName,
-        senderAvatar: user.photoURL,
-        recipientId: userToFollow.id
+        recipientId: userToFollow.id, // Usuario que recibe la solicitud
+        senderId: user.uid,          // Usuario que envía la solicitud
+        senderName: user.displayName || 'Usuario desconocido',
+        senderAvatar: user.photoURL || '/placeholder/avatar.png',
+        type: 'friend_request',     // Tipo de notificación específico
+        createdAt: new Date(),
       });
   
-      if (onFollow) {
-        onFollow(userToFollow);
-      }
-    } catch (error) {
-      console.error('Error al seguir usuario:', error);
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo seguir al usuario. Intenta nuevamente."
+        title: 'Solicitud enviada',
+        description: `Solicitud de amistad enviada a ${userToFollow.nombre}.`,
+        variant: 'success',
+      });
+    } catch (error) {
+      console.error('Error al enviar la solicitud de amistad:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo enviar la solicitud. Intenta nuevamente.',
+        variant: 'destructive',
       });
     }
   };
-  
+        
+
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   const handleEditProfileClick = () => {
@@ -171,12 +183,8 @@ export const Navbar = ({ onFollow }) => {
     <nav className="bg-gradient-to-r from-orange-400 to-orange-600 fixed w-full z-50 shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
-          <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-widest">
-            Sportify
-          </h1>
-
-          {/* Barra de búsqueda */}
-          <form onSubmit={handleSearch} className=" flex-1 flex justify-center mx-4 relative">
+          <h1 className="text-3xl lg:text-4xl font-bold text-white tracking-widest">Sportify</h1>
+          <form onSubmit={handleSearch} className="flex-1 flex justify-center mx-4 relative">
             <div className="relative w-1/2">
               <input
                 type="text"
@@ -193,7 +201,6 @@ export const Navbar = ({ onFollow }) => {
                 <Search className="w-5 h-5 text-orange-500 hover:text-orange-700" />
               </button>
             </div>
-
             {searchResults.length > 0 && (
               <div className="absolute top-full mt-2 w-1/2 bg-white shadow-lg rounded-lg z-10 max-h-60 overflow-y-auto">
                 <ul>
@@ -207,7 +214,7 @@ export const Navbar = ({ onFollow }) => {
                         <p className="text-sm text-gray-500">{result.email}</p>
                       </div>
                       <button
-                        onClick={() => handleFollow(result)} // Actualiza la lista de seguidores
+                        onClick={() => handleFollow(result)}
                         className="px-3 py-1 text-sm font-medium text-white bg-orange-500 rounded-full hover:bg-orange-600 focus:outline-none"
                       >
                         Seguir
@@ -219,7 +226,6 @@ export const Navbar = ({ onFollow }) => {
             )}
           </form>
 
-          {/* Botones de navegación */}
           <div className="hidden sm:flex items-center space-x-6">
             <Button
               className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200"
@@ -247,7 +253,6 @@ export const Navbar = ({ onFollow }) => {
                 </span>
               )}
             </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="h-10 w-10 lg:h-12 lg:w-12 hover:shadow-lg cursor-pointer ring-2 ring-white/50 hover:ring-white transition-all duration-200">
@@ -262,128 +267,46 @@ export const Navbar = ({ onFollow }) => {
                   <span>Mi Cuenta</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50"
-                                  onClick={handleEditProfileClick}>
-                  <User className="mr-2 h-4 w-4"  />
+                <DropdownMenuItem className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50" onClick={handleEditProfileClick}>
+                  <User className="mr-2 h-4 w-4" />
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 {isAccountDeactivated ? (
-                    <p>Tu cuenta ha sido desactivada. ¡Lamentamos verte partir!</p>
-                  ) : (
-                    <>
-                      <DropdownMenuItem
-                        className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50"
-                        onClick={(e) => handleMenu(e)}
-                      >
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Configuración</span>
-                      </DropdownMenuItem>
-                      {isDropdownOpen && (
-                        <DesactivarCuenta onDeactivate={handleDeactivateAccount} />
-                      )}
-                    </>
-                )} 
+                  <p>Tu cuenta ha sido desactivada. ¡Lamentamos verte partir!</p>
+                ) : (
+                  <>
+                    <DropdownMenuItem
+                      className="cursor-pointer hover:bg-orange-50 focus:bg-orange-50"
+                      onClick={(e) => handleMenu(e)}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Configuración</span>
+                    </DropdownMenuItem>
+                    {isDropdownOpen && (
+                      <DesactivarCuenta onDeactivate={handleDeactivateAccount} />
+                    )}
+                  </>
+                )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50"
-                  onClick={handleLogout}
-                >
+                <DropdownMenuItem className="cursor-pointer text-red-600 hover:bg-red-50 focus:bg-red-50" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          
-          
-          
-        </div>
-        <div className="sm:hidden flex items-center">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-white"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-        </div>
-        {isMenuOpen && (
-          <div className="sm:hidden absolute top-16 left-0 w-full bg-gradient-to-r from-orange-400 to-orange-600 border-t border-orange-500">
-            <div className="flex flex-col space-y-1 py-4 px-4">
-              <Button 
-                variant="ghost" 
-                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
-                onClick={() => {
-                  navigate('/home');
-                  setIsMenuOpen(false);
-                }}
-              >
-                <Home className="mr-2 h-6 w-6" />
-                Home
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
-                onClick={() => {
-                  navigate('/comunidades');
-                  setIsMenuOpen(false);
-                }}
-              >
-                <Users className="mr-2 h-6 w-6" />
-                Comunidades
-              </Button>
-              <Button
-                size="icon"
-                className="text-white bg-transparent hover:bg-white hover:text-orange-500 transition-colors duration-200 relative"
-                onClick={() => setNotificationsOpen(true)}
-              >
-                <Bell className="h-6 w-6" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="flex items-center text-white hover:bg-orange-500 justify-start w-full"
-                onClick={() => {
-                  handleEditProfileClick();
-                  setIsMenuOpen(false);
-                }}
-              >
-                <User className="mr-2 h-6 w-6" />
-                Perfil
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="flex items-center text-white hover:bg-red-500 justify-start w-full"
-                onClick={() => {
-                  handleLogout();
-                  setIsMenuOpen(false);
-                }}
-              >
-                <LogOut className="mr-2 h-6 w-6" />
-                Cerrar Sesión
-              </Button>
-              
-            </div>
           </div>
-        )}
+        </div>
       </div>
-      
-      {isEditProfileOpen && (
-        <EditarPerfil user={user} onClose={handleCloseEditProfile}  />
-      )}
 
-      
+      {isEditProfileOpen && (
+        <EditarPerfil user={user} onClose={handleCloseEditProfile} />
+      )}
       <NotificacionesPanel
         open={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
         notifications={notifications}
         onMarkAllRead={handleMarkAllRead}
       />
-      </div>
     </nav>
   );
 };
